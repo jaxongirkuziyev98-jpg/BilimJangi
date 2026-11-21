@@ -1,0 +1,6 @@
+{
+  "name": "BilimJang",
+  "description": "Real vaqtdagi 1v1 jamoaviy va individual ta'limiy bellashuv o'yini — 9 ta fan, 4 xil mini-o'yin.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
