@@ -70,6 +70,10 @@ export function QuestionPanel({
 
   const letters = ['A', 'B', 'C', 'D'];
 
+  const activeContent = question.localized?.[language];
+  const displayText = activeContent?.text ?? question.text;
+  const displayOptions = activeContent?.options ?? question.options;
+
   return (
     <motion.div
       key={question.id}
@@ -124,7 +128,7 @@ export function QuestionPanel({
 
       {/* Question Prompt */}
       <h2 className="font-display text-xl sm:text-2xl font-bold text-slate-900 dark:text-white leading-snug mb-6">
-        {question.text}
+        {displayText}
       </h2>
 
       {locked && lockedMessage ? (
@@ -154,7 +158,7 @@ export function QuestionPanel({
         </form>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {question.options.map((opt, idx) => {
+          {displayOptions.map((opt, idx) => {
             const isPicked = selectedIdx === idx;
             const isCorrectOption = hasFeedback && lastAnswerResult.correctIndex === idx;
             const isWrongPicked = hasFeedback && isPicked && !lastAnswerResult.correct;

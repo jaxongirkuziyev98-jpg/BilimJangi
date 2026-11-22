@@ -1,23 +1,25 @@
 import { Flag } from 'lucide-react';
 import { motion } from 'motion/react';
 import { TRANSLATIONS } from '../../i18n/translations';
-import { Player, PublicRoomState } from '../../shared/types';
+import { PublicRoomState } from '../../shared/types';
 import { useGameStore } from '../../store/useGameStore';
 
 interface ArenaProps {
   room: PublicRoomState;
-  playerA?: Player;
-  playerB?: Player;
   myId: string | null;
 }
 
-export function RaceArena({ room, playerA, playerB, myId }: ArenaProps) {
+export function RaceArena({ room, myId }: ArenaProps) {
   const { language } = useGameStore();
   const t = TRANSLATIONS[language];
 
+  const teamA = room.players.filter((p) => p.side === 'A');
+  const teamB = room.players.filter((p) => p.side === 'B');
+  const me = room.players.find((p) => p.id === myId);
+
   const finish = Math.max(1, room.raceFinishLine);
-  const progA = playerA?.progress ?? 0;
-  const progB = playerB?.progress ?? 0;
+  const progA = room.teamAProgress;
+  const progB = room.teamBProgress;
   const pctA = Math.min(92, (progA / finish) * 88);
   const pctB = Math.min(92, (progB / finish) * 88);
 
@@ -38,8 +40,9 @@ export function RaceArena({ room, playerA, playerB, myId }: ArenaProps) {
         <div className="relative rounded-xl border border-blue-200 dark:border-blue-900/60 bg-slate-100 dark:bg-slate-950 p-3 overflow-hidden">
           <div className="flex items-center justify-between text-xs font-bold mb-2">
             <span className="text-blue-700 dark:text-blue-400">
-              {playerA?.avatar} {playerA?.name ?? 'Player 1'}
-              {playerA?.id === myId ? ` (${t.youBadge})` : ''}
+              {teamA.slice(0, 3).map((p) => p.avatar).join(' ')}{' '}
+              {teamA.length === 1 ? teamA[0].name : `${t.teamALabel} (${teamA.length})`}
+              {me?.side === 'A' ? ` (${t.youBadge})` : ''}
             </span>
             <span className="font-mono tabular-nums text-slate-600 dark:text-slate-300">
               {progA} / {finish}
@@ -62,8 +65,9 @@ export function RaceArena({ room, playerA, playerB, myId }: ArenaProps) {
         <div className="relative rounded-xl border border-orange-200 dark:border-orange-900/60 bg-slate-100 dark:bg-slate-950 p-3 overflow-hidden">
           <div className="flex items-center justify-between text-xs font-bold mb-2">
             <span className="text-orange-700 dark:text-orange-400">
-              {playerB?.avatar} {playerB?.name ?? 'Player 2'}
-              {playerB?.id === myId ? ` (${t.youBadge})` : ''}
+              {teamB.slice(0, 3).map((p) => p.avatar).join(' ')}{' '}
+              {teamB.length === 1 ? teamB[0].name : `${t.teamBLabel} (${teamB.length})`}
+              {me?.side === 'B' ? ` (${t.youBadge})` : ''}
             </span>
             <span className="font-mono tabular-nums text-slate-600 dark:text-slate-300">
               {progB} / {finish}

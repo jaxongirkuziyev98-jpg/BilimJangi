@@ -6,6 +6,7 @@ import {
   AnswerResultPayload,
   CustomQuestionInput,
   Difficulty,
+  DuelSide,
   GameType,
   MathInputMode,
   PublicQuestion,
@@ -56,7 +57,6 @@ export function useSocketSync(): void {
       const store = useGameStore.getState();
       store.setConnected(true, false);
 
-      // Reconnect existing session if page refreshed or network dropped
       const saved = store.getSavedSession();
       if (saved && (store.room || saved.code)) {
         socket.emit('reconnect_session', saved);
@@ -170,11 +170,6 @@ export function useSocketSync(): void {
       if (typeof window !== 'undefined') {
         window.sessionStorage.removeItem('bilimjang_room_code');
       }
-      // Server qayta ishga tushgan yoki xona yopilgan bo'lsa, eskirgan ekranda qolib ketmaslik uchun
-      const store = useGameStore.getState();
-      if (store.room) {
-        store.clearRoomSession();
-      }
     });
 
     socket.on('player_disconnected', () => {
@@ -236,8 +231,16 @@ export const socketActions = {
     getSocket().emit('update_room_settings', payload);
   },
 
-  switchSide() {
-    getSocket().emit('switch_side');
+  switchToSide(side: DuelSide) {
+    getSocket().emit('switch_side', { side });
+  },
+
+  shuffleTeams() {
+    getSocket().emit('shuffle_teams');
+  },
+
+  addBot(side?: DuelSide) {
+    getSocket().emit('add_bot', { side });
   },
 
   addCustomQuestion(q: CustomQuestionInput) {

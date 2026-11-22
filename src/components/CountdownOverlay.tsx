@@ -37,8 +37,8 @@ export function CountdownOverlay() {
 
   if (!room || room.status !== 'countdown') return null;
 
-  const playerA = room.players.find((p) => p.side === 'A');
-  const playerB = room.players.find((p) => p.side === 'B');
+  const teamA = room.players.filter((p) => p.side === 'A');
+  const teamB = room.players.filter((p) => p.side === 'B');
   const subjectMeta = SUBJECTS.find((s) => s.id === room.subject);
   const gameTitle =
     room.gameType === 'subject_battle'
@@ -53,16 +53,30 @@ export function CountdownOverlay() {
         </div>
         <div className="mt-4 flex items-center justify-center gap-6 sm:gap-10">
           <div className="flex flex-col items-center">
-            <span className="text-4xl sm:text-5xl">{playerA?.avatar ?? '🦁'}</span>
+            <div className="flex -space-x-2">
+              {teamA.slice(0, 4).map((p) => (
+                <span key={p.id} className="text-3xl sm:text-4xl">
+                  {p.avatar}
+                </span>
+              ))}
+            </div>
             <span className="mt-2 font-display font-bold text-blue-400">
-              {playerA?.name ?? 'Player 1'}
+              {teamA.length === 1 ? teamA[0].name : `${t.teamALabel} (${teamA.length})`}
             </span>
           </div>
+
           <span className="font-display text-2xl font-extrabold text-slate-400">VS</span>
+
           <div className="flex flex-col items-center">
-            <span className="text-4xl sm:text-5xl">{playerB?.avatar ?? '🐼'}</span>
+            <div className="flex -space-x-2">
+              {teamB.slice(0, 4).map((p) => (
+                <span key={p.id} className="text-3xl sm:text-4xl">
+                  {p.avatar}
+                </span>
+              ))}
+            </div>
             <span className="mt-2 font-display font-bold text-orange-400">
-              {playerB?.name ?? 'Player 2'}
+              {teamB.length === 1 ? teamB[0].name : `${t.teamBLabel} (${teamB.length})`}
             </span>
           </div>
         </div>

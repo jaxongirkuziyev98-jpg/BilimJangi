@@ -25,8 +25,6 @@ export function GamePage() {
   if (!room) return null;
 
   const isHost = playerId === room.hostId;
-  const playerA = room.players.find((p) => p.side === 'A');
-  const playerB = room.players.find((p) => p.side === 'B');
   const subjectMeta = SUBJECTS.find((s) => s.id === room.subject);
   const isUrgent = room.timeLeft <= 10 && room.status === 'playing';
 
@@ -103,23 +101,23 @@ export function GamePage() {
             </div>
           ) : (
             <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-              1v1 · #{room.code}
+              #{room.code} · {room.players.length} {t.duelReadyCount}
             </span>
           )}
         </div>
 
         {/* Active Game Arena */}
         {room.gameType === 'subject_battle' && (
-          <SubjectBattleArena room={room} playerA={playerA} playerB={playerB} myId={playerId} />
+          <SubjectBattleArena room={room} myId={playerId} />
         )}
         {room.gameType === 'tug_of_war' && (
-          <TugOfWarArena room={room} playerA={playerA} playerB={playerB} myId={playerId} />
+          <TugOfWarArena room={room} myId={playerId} />
         )}
         {room.gameType === 'race' && (
-          <RaceArena room={room} playerA={playerA} playerB={playerB} myId={playerId} />
+          <RaceArena room={room} myId={playerId} />
         )}
         {room.gameType === 'quick_answer' && (
-          <QuickAnswerArena room={room} playerA={playerA} playerB={playerB} myId={playerId} />
+          <QuickAnswerArena room={room} myId={playerId} />
         )}
 
         {/* Active Question Panel */}

@@ -132,6 +132,11 @@ export const AVATARS = [
   '👽',
 ];
 
+export interface LocalizedQuestionContent {
+  text: string;
+  options: [string, string, string, string];
+}
+
 export interface ServerQuestion {
   id: string;
   subject: SubjectId;
@@ -140,6 +145,7 @@ export interface ServerQuestion {
   correctIndex: number;
   numericAnswer?: number;
   difficulty: Difficulty;
+  localized?: Record<Language, LocalizedQuestionContent>;
 }
 
 export interface PublicQuestion {
@@ -149,6 +155,7 @@ export interface PublicQuestion {
   options: [string, string, string, string];
   difficulty: Difficulty;
   supportsNumeric: boolean;
+  localized?: Record<Language, LocalizedQuestionContent>;
 }
 
 export interface CustomQuestionInput {
@@ -163,6 +170,7 @@ export interface Player {
   avatar: string;
   side: DuelSide;
   isHost: boolean;
+  isBot: boolean;
   score: number;
   correctCount: number;
   wrongCount: number;
@@ -193,9 +201,13 @@ export interface PublicRoomState {
   status: RoomStatus;
   timeLeft: number;
   totalTime: number;
-  ropePosition: number; // -8 (A wins) to +8 (B wins)
+  ropePosition: number; // -ropeLimit (A wins) to +ropeLimit (B wins)
   ropeLimit: number;
   raceFinishLine: number;
+  teamAScore: number;
+  teamBScore: number;
+  teamAProgress: number;
+  teamBProgress: number;
   quickRound: number;
   quickTotalRounds: number;
   quickRoundWinner: QuickRoundWinner | null;

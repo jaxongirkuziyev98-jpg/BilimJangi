@@ -71,7 +71,7 @@ export function WelcomePage() {
               <div className="flex flex-col items-center flex-1 rounded-2xl border border-blue-200 dark:border-blue-900/60 bg-blue-50/70 dark:bg-blue-950/30 p-4">
                 <span className="text-4xl">🦁</span>
                 <span className="mt-2 font-display text-sm font-bold text-blue-700 dark:text-blue-400">
-                  1-O‘yinchi
+                  {t.teamALabel}
                 </span>
                 <span className="mt-1 font-mono text-xl font-extrabold tabular-nums text-slate-900 dark:text-white">
                   120
@@ -83,9 +83,9 @@ export function WelcomePage() {
               </div>
 
               <div className="flex flex-col items-center flex-1 rounded-2xl border border-orange-200 dark:border-orange-900/60 bg-orange-50/70 dark:bg-orange-950/30 p-4">
-                <span className="text-4xl">🦊</span>
+                <span className="text-4xl">🤖</span>
                 <span className="mt-2 font-display text-sm font-bold text-orange-700 dark:text-orange-400">
-                  2-O‘yinchi
+                  {t.teamBLabel}
                 </span>
                 <span className="mt-1 font-mono text-xl font-extrabold tabular-nums text-slate-900 dark:text-white">
                   110

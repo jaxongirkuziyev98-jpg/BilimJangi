@@ -30,11 +30,22 @@ export function ResultsPage() {
   if (!room) return null;
 
   const isHost = playerId === room.hostId;
-  const playerA = room.players.find((p) => p.side === 'A');
-  const playerB = room.players.find((p) => p.side === 'B');
-  const winnerPlayer =
-    room.winner === 'A' ? playerA : room.winner === 'B' ? playerB : null;
+  const teamA = room.players.filter((p) => p.side === 'A');
+  const teamB = room.players.filter((p) => p.side === 'B');
   const subjectMeta = SUBJECTS.find((s) => s.id === room.subject);
+
+  let headline = t.resultsDraw;
+  if (room.winner === 'A') {
+    headline =
+      teamA.length === 1
+        ? `${t.resultsWinnerPrefix} ${teamA[0].avatar} ${teamA[0].name}!`
+        : `🏆 ${t.resultsTeamAWon}`;
+  } else if (room.winner === 'B') {
+    headline =
+      teamB.length === 1
+        ? `${t.resultsWinnerPrefix} ${teamB[0].avatar} ${teamB[0].name}!`
+        : `🏆 ${t.resultsTeamBWon}`;
+  }
 
   const reasonMap = {
     score: t.winReasonScore,
@@ -70,9 +81,7 @@ export function ResultsPage() {
         </p>
 
         <h1 className="font-display text-3xl sm:text-5xl font-extrabold text-slate-900 dark:text-white">
-          {room.winner === 'draw'
-            ? t.resultsDraw
-            : `${t.resultsWinnerPrefix} ${winnerPlayer?.avatar ?? ''} ${winnerPlayer?.name ?? ''}!`}
+          {headline}
         </h1>
 
         {room.winReason && reasonMap[room.winReason] && (
@@ -81,15 +90,17 @@ export function ResultsPage() {
           </p>
         )}
 
-        {/* 1v1 Score Comparison */}
+        {/* Team Score Comparison */}
         <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-xl mx-auto">
-          {[playerA, playerB].map((p, idx) => {
-            if (!p) return null;
-            const isBlue = p.side === 'A';
-            const isWin = room.winner === p.side;
+          {[
+            { side: 'A' as const, members: teamA, score: room.teamAScore, label: t.teamALabel },
+            { side: 'B' as const, members: teamB, score: room.teamBScore, label: t.teamBLabel },
+          ].map((team) => {
+            const isBlue = team.side === 'A';
+            const isWin = room.winner === team.side;
             return (
               <div
-                key={p.id || idx}
+                key={team.side}
                 className={`rounded-2xl border-2 p-5 transition-all ${
                   isWin
                     ? isBlue
@@ -98,15 +109,21 @@ export function ResultsPage() {
                     : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50'
                 }`}
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <span className="text-3xl">{p.avatar}</span>
-                    <div className="text-left">
-                      <p className="font-display text-base font-bold text-slate-900 dark:text-white">
-                        {p.name}
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="flex -space-x-2 shrink-0">
+                      {team.members.slice(0, 3).map((m) => (
+                        <span key={m.id} className="text-2xl">
+                          {m.avatar}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="text-left min-w-0">
+                      <p className="font-display text-base font-bold text-slate-900 dark:text-white truncate">
+                        {team.members.length === 1 ? team.members[0].name : team.label}
                       </p>
                       <p className="text-xs text-slate-500 dark:text-slate-400">
-                        {isBlue ? t.player1Label : t.player2Label}
+                        {team.members.length} {t.duelReadyCount}
                       </p>
                     </div>
                   </div>
@@ -117,7 +134,7 @@ export function ResultsPage() {
                         : 'text-orange-600 dark:text-orange-400'
                     }`}
                   >
-                    {p.score}
+                    {team.score}
                   </span>
                 </div>
               </div>
@@ -126,7 +143,7 @@ export function ResultsPage() {
         </div>
       </div>
 
-      {/* Detailed Duel Statistics Table */}
+      {/* Detailed Leaderboard Table */}
       <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
@@ -163,11 +180,21 @@ export function ResultsPage() {
                               </span>
                             )}
                           </div>
-                          {p.id === playerId && (
-                            <span className="text-xs text-slate-500 dark:text-slate-400">
-                              {t.youBadge}
-                            </span>
-                          )}
+                          <span
+                            className={`text-xs font-medium ${
+                              p.side === 'A'
+                                ? 'text-blue-600 dark:text-blue-400'
+                                : 'text-orange-600 dark:text-orange-400'
+                            }`}
+                          >
+                            {[
+                              p.side === 'A' ? t.teamALabel : t.teamBLabel,
+                              p.id === playerId ? t.youBadge : null,
+                              p.isBot ? t.botBadge : null,
+                            ]
+                              .filter(Boolean)
+                              .join(' · ')}
+                          </span>
                         </div>
                       </div>
                     </td>

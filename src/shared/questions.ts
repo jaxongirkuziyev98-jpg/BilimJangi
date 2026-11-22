@@ -1,4 +1,5 @@
-import { Difficulty, PublicQuestion, ServerQuestion, SubjectId } from './types';
+import { getLocalizedBankEntry } from './questions_ru_en';
+import { Difficulty, Language, LocalizedQuestionContent, PublicQuestion, ServerQuestion, SubjectId } from './types';
 
 function randInt(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -56,6 +57,8 @@ export function generateMathQuestions(difficulty: Difficulty, count: number): Se
     attempts++;
     let text = '';
     let answer = 0;
+
+    let localizedTexts: { uz: string; ru: string; en: string } | undefined;
 
     if (difficulty === 'easy') {
       const op = Math.random() < 0.55 ? '+' : '-';
@@ -119,6 +122,11 @@ export function generateMathQuestions(difficulty: Difficulty, count: number): Se
         const p = percents[randInt(0, percents.length - 1)];
         const base = randInt(2, 16) * 20;
         text = `${base} ning ${p}% i nechaga teng?`;
+        localizedTexts = {
+          uz: `${base} ning ${p}% i nechaga teng?`,
+          ru: `Сколько составляет ${p}% от ${base}?`,
+          en: `What is ${p}% of ${base}?`,
+        };
         answer = (base * p) / 100;
       } else {
         // Kvadratlar ayirmasi yoki daraja
@@ -133,6 +141,14 @@ export function generateMathQuestions(difficulty: Difficulty, count: number): Se
     usedTexts.add(text);
 
     const { options, correctIndex } = buildNumericOptions(answer, difficulty === 'easy' ? 6 : 12);
+    const localized: Record<Language, LocalizedQuestionContent> | undefined = localizedTexts
+      ? {
+          uz: { text: localizedTexts.uz, options },
+          ru: { text: localizedTexts.ru, options },
+          en: { text: localizedTexts.en, options },
+        }
+      : undefined;
+
     questions.push({
       id: `math_${Date.now()}_${questions.length}_${randInt(100, 999)}`,
       subject: 'math',
@@ -141,6 +157,7 @@ export function generateMathQuestions(difficulty: Difficulty, count: number): Se
       correctIndex,
       numericAnswer: answer,
       difficulty,
+      localized,
     });
   }
 
@@ -346,14 +363,24 @@ export function getSubjectQuestions(
   }
 
   const rawList = SUBJECT_BANKS[subject] ?? SUBJECT_BANKS.physics;
-  const converted: ServerQuestion[] = rawList.map(([text, options, correctIndex, qDiff], index) => ({
-    id: `${subject}_${index}_${qDiff}`,
-    subject,
-    text,
-    options: [...options] as [string, string, string, string],
-    correctIndex,
-    difficulty: qDiff,
-  }));
+  const converted: ServerQuestion[] = rawList.map(([text, options, correctIndex, qDiff], index) => {
+    const tr = getLocalizedBankEntry(subject, index);
+    const uzContent: LocalizedQuestionContent = {
+      text,
+      options: [...options] as [string, string, string, string],
+    };
+    return {
+      id: `${subject}_${index}_${qDiff}`,
+      subject,
+      text,
+      options: [...options] as [string, string, string, string],
+      correctIndex,
+      difficulty: qDiff,
+      localized: tr
+        ? { uz: uzContent, ru: tr.ru, en: tr.en }
+        : { uz: uzContent, ru: uzContent, en: uzContent },
+    };
+  });
 
   // Prioritize questions matching selected difficulty while keeping all 20 available
   const matching = converted.filter((q) => q.difficulty === difficulty);
@@ -378,5 +405,6 @@ export function toPublicQuestion(q: ServerQuestion): PublicQuestion {
     options: q.options,
     difficulty: q.difficulty,
     supportsNumeric: q.subject === 'math' && typeof q.numericAnswer === 'number',
+    localized: q.localized,
   };
 }
