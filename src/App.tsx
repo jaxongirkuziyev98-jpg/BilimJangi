@@ -15,11 +15,11 @@ export default function App() {
   const screen = useGameStore((s) => s.screen);
 
   return (
-    <div className="min-h-screen flex flex-col text-slate-900 dark:text-slate-100 transition-colors duration-200">
+    <div className="min-h-dvh w-full overflow-x-hidden flex flex-col text-slate-900 dark:text-slate-100 transition-colors duration-200">
       <FloatingBackground />
       <TopBar />
 
-      <div className="flex-1">
+      <div className="flex-1 min-w-0">
         {screen === 'welcome' && <WelcomePage />}
         {screen === 'profile' && <ProfileSubjectPage />}
         {screen === 'create_room' && <CreateRoomPage />}

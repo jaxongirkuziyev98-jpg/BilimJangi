@@ -64,34 +64,34 @@ export function ResultsPage() {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25 }}
-      className="mx-auto max-w-4xl px-4 sm:px-6 py-8 sm:py-12 space-y-6"
+      className="mx-auto max-w-4xl px-3 sm:px-6 py-4 sm:py-12 space-y-4 sm:space-y-6"
     >
       {/* Winner Banner */}
-      <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-7 sm:p-10 text-center shadow-sm">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-500/15 text-amber-500">
+      <div className="rounded-2xl sm:rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 sm:p-10 text-center shadow-sm">
+        <div className="mx-auto mb-3 sm:mb-4 flex h-12 w-12 sm:h-16 sm:w-16 items-center justify-center rounded-2xl bg-amber-500/15 text-amber-500">
           {room.winner === 'draw' ? (
-            <span className="text-4xl">🤝</span>
+            <span className="text-3xl sm:text-4xl">🤝</span>
           ) : (
-            <Trophy className="h-9 w-9" />
+            <Trophy className="h-7 w-7 sm:h-9 sm:w-9" />
           )}
         </div>
 
-        <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2">
+        <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5 sm:mb-2">
           {subjectMeta?.emoji} {t.subjects[room.subject].name} · {t.games[room.gameType].name}
         </p>
 
-        <h1 className="font-display text-3xl sm:text-5xl font-extrabold text-slate-900 dark:text-white">
+        <h1 className="font-display text-2xl sm:text-5xl font-extrabold text-slate-900 dark:text-white">
           {headline}
         </h1>
 
         {room.winReason && reasonMap[room.winReason] && (
-          <p className="mt-2 text-sm sm:text-base text-slate-600 dark:text-slate-300">
+          <p className="mt-1.5 sm:mt-2 text-xs sm:text-base text-slate-600 dark:text-slate-300">
             {reasonMap[room.winReason]}
           </p>
         )}
 
         {/* Team Score Comparison */}
-        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-xl mx-auto">
+        <div className="mt-5 sm:mt-8 grid grid-cols-2 gap-2.5 sm:gap-4 max-w-xl mx-auto">
           {[
             { side: 'A' as const, members: teamA, score: room.teamAScore, label: t.teamALabel },
             { side: 'B' as const, members: teamB, score: room.teamBScore, label: t.teamBLabel },
@@ -101,7 +101,7 @@ export function ResultsPage() {
             return (
               <div
                 key={team.side}
-                className={`rounded-2xl border-2 p-5 transition-all ${
+                className={`rounded-xl sm:rounded-2xl border-2 p-3 sm:p-5 transition-all ${
                   isWin
                     ? isBlue
                       ? 'border-blue-500 bg-blue-50/70 dark:bg-blue-950/30'
@@ -110,25 +110,25 @@ export function ResultsPage() {
                 }`}
               >
                 <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-3 min-w-0">
+                  <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                     <div className="flex -space-x-2 shrink-0">
-                      {team.members.slice(0, 3).map((m) => (
-                        <span key={m.id} className="text-2xl">
+                      {team.members.slice(0, 2).map((m) => (
+                        <span key={m.id} className="text-xl sm:text-2xl">
                           {m.avatar}
                         </span>
                       ))}
                     </div>
                     <div className="text-left min-w-0">
-                      <p className="font-display text-base font-bold text-slate-900 dark:text-white truncate">
+                      <p className="font-display text-xs sm:text-base font-bold text-slate-900 dark:text-white truncate">
                         {team.members.length === 1 ? team.members[0].name : team.label}
                       </p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                      <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400">
                         {team.members.length} {t.duelReadyCount}
                       </p>
                     </div>
                   </div>
                   <span
-                    className={`font-display text-3xl font-extrabold tabular-nums ${
+                    className={`font-display text-2xl sm:text-3xl font-extrabold tabular-nums shrink-0 ${
                       isBlue
                         ? 'text-blue-600 dark:text-blue-400'
                         : 'text-orange-600 dark:text-orange-400'
@@ -148,16 +148,16 @@ export function ResultsPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-slate-200 dark:border-slate-800 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-950/60">
-                <th className="px-5 py-3.5">{t.playerCol}</th>
-                <th className="px-4 py-3.5 text-right">{t.correctCol}</th>
-                <th className="px-4 py-3.5 text-right">{t.wrongCol}</th>
-                <th className="px-4 py-3.5 text-right">{t.accuracyCol}</th>
-                <th className="px-4 py-3.5 text-right">{t.streakCol}</th>
-                <th className="px-5 py-3.5 text-right">{t.scoreCol}</th>
+              <tr className="border-b border-slate-200 dark:border-slate-800 text-[11px] sm:text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-950/60">
+                <th className="px-3 sm:px-5 py-3 sm:py-3.5">{t.playerCol}</th>
+                <th className="px-2 sm:px-4 py-3 sm:py-3.5 text-right">{t.correctCol}</th>
+                <th className="hidden sm:table-cell px-4 py-3.5 text-right">{t.wrongCol}</th>
+                <th className="px-2 sm:px-4 py-3 sm:py-3.5 text-right">{t.accuracyCol}</th>
+                <th className="hidden sm:table-cell px-4 py-3.5 text-right">{t.streakCol}</th>
+                <th className="px-3 sm:px-5 py-3 sm:py-3.5 text-right">{t.scoreCol}</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-200/70 dark:divide-slate-800/70 text-sm">
+            <tbody className="divide-y divide-slate-200/70 dark:divide-slate-800/70 text-xs sm:text-sm">
               {sortedPlayers.map((p) => {
                 const totalAns = p.correctCount + p.wrongCount;
                 const accuracy =
@@ -165,23 +165,23 @@ export function ResultsPage() {
                 const isMvp = p.id === room.mvpPlayerId && room.winner !== 'draw';
                 return (
                   <tr key={p.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40">
-                    <td className="px-5 py-4">
-                      <div className="flex items-center gap-3">
-                        <span className="text-2xl">{p.avatar}</span>
-                        <div>
-                          <div className="flex items-center gap-1.5 font-display font-bold text-slate-900 dark:text-white">
-                            <span>{p.name}</span>
+                    <td className="px-3 sm:px-5 py-3 sm:py-4">
+                      <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                        <span className="text-xl sm:text-2xl shrink-0">{p.avatar}</span>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1 font-display font-bold text-slate-900 dark:text-white truncate">
+                            <span className="truncate">{p.name}</span>
                             {isMvp && (
                               <span
                                 title={t.mvpLabel}
-                                className="inline-flex items-center gap-1 text-xs font-bold text-amber-500"
+                                className="inline-flex items-center gap-1 text-xs font-bold text-amber-500 shrink-0"
                               >
-                                <Crown className="h-4 w-4" />
+                                <Crown className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                               </span>
                             )}
                           </div>
                           <span
-                            className={`text-xs font-medium ${
+                            className={`text-[11px] sm:text-xs font-medium ${
                               p.side === 'A'
                                 ? 'text-blue-600 dark:text-blue-400'
                                 : 'text-orange-600 dark:text-orange-400'
@@ -198,19 +198,19 @@ export function ResultsPage() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-4 text-right font-mono font-semibold tabular-nums text-emerald-600 dark:text-emerald-400">
+                    <td className="px-2 sm:px-4 py-3 sm:py-4 text-right font-mono font-semibold tabular-nums text-emerald-600 dark:text-emerald-400">
                       {p.correctCount}
                     </td>
-                    <td className="px-4 py-4 text-right font-mono font-semibold tabular-nums text-red-600 dark:text-red-400">
+                    <td className="hidden sm:table-cell px-4 py-4 text-right font-mono font-semibold tabular-nums text-red-600 dark:text-red-400">
                       {p.wrongCount}
                     </td>
-                    <td className="px-4 py-4 text-right font-mono font-semibold tabular-nums text-slate-700 dark:text-slate-300">
+                    <td className="px-2 sm:px-4 py-3 sm:py-4 text-right font-mono font-semibold tabular-nums text-slate-700 dark:text-slate-300">
                       {accuracy}%
                     </td>
-                    <td className="px-4 py-4 text-right font-mono font-semibold tabular-nums text-amber-600 dark:text-amber-400">
+                    <td className="hidden sm:table-cell px-4 py-4 text-right font-mono font-semibold tabular-nums text-amber-600 dark:text-amber-400">
                       {p.bestStreak}
                     </td>
-                    <td className="px-5 py-4 text-right font-display text-lg font-extrabold tabular-nums text-slate-900 dark:text-white">
+                    <td className="px-3 sm:px-5 py-3 sm:py-4 text-right font-display text-base sm:text-lg font-extrabold tabular-nums text-slate-900 dark:text-white">
                       {p.score}
                     </td>
                   </tr>

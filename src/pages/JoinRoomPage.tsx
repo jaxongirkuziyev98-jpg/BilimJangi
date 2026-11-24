@@ -82,7 +82,7 @@ export function JoinRoomPage() {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2 }}
-      className="mx-auto max-w-xl px-4 sm:px-6 py-10 sm:py-16"
+      className="mx-auto max-w-xl px-3 sm:px-6 py-5 sm:py-16"
     >
       <button
         type="button"
@@ -90,30 +90,30 @@ export function JoinRoomPage() {
           soundEngine.click();
           setScreen('profile');
         }}
-        className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white cursor-pointer"
+        className="mb-4 sm:mb-6 inline-flex items-center gap-2 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white cursor-pointer"
       >
         <ArrowLeft className="h-4 w-4" />
         {t.back}
       </button>
 
       <div
-        className={`rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-8 shadow-sm ${
+        className={`rounded-2xl sm:rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-8 shadow-sm ${
           errorText ? 'animate-shake' : ''
         }`}
       >
         <h1 className="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white text-center">
           {t.joinRoomTitle}
         </h1>
-        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300 text-center">
+        <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm text-slate-600 dark:text-slate-300 text-center">
           {t.joinRoomSubtitle}
         </p>
 
-        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+        <form onSubmit={handleSubmit} className="mt-6 sm:mt-8 space-y-5 sm:space-y-6">
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 text-center mb-3">
               {t.enterRoomCode}
             </label>
-            <div className="flex items-center justify-center gap-2 sm:gap-3">
+            <div className="flex items-center justify-center gap-1.5 sm:gap-3">
               {chars.map((ch, idx) => (
                 <input
                   key={idx}
@@ -126,7 +126,7 @@ export function JoinRoomPage() {
                   value={ch}
                   onChange={(e) => handleCharChange(idx, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(idx, e.key)}
-                  className={`h-14 w-11 sm:h-16 sm:w-14 rounded-xl border-2 text-center font-mono text-2xl font-extrabold uppercase bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white focus:outline-none transition-colors ${
+                  className={`h-12 w-10 sm:h-16 sm:w-14 rounded-xl border-2 text-center font-mono text-xl sm:text-2xl font-extrabold uppercase bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white focus:outline-none transition-colors ${
                     errorText
                       ? 'border-red-500'
                       : 'border-slate-200 dark:border-slate-700 focus:border-violet-500'
@@ -145,7 +145,7 @@ export function JoinRoomPage() {
           <button
             type="submit"
             disabled={codeString.length < 6}
-            className="inline-flex min-h-13 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-orange-500 to-red-600 px-6 py-3.5 font-display text-base font-bold text-white shadow-lg shadow-orange-600/20 hover:brightness-110 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed whitespace-nowrap shrink-0"
+            className="inline-flex min-h-12 sm:min-h-13 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-orange-500 to-red-600 px-6 py-3 font-display text-base font-bold text-white shadow-lg shadow-orange-600/20 hover:brightness-110 disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed whitespace-nowrap shrink-0"
           >
             <LogIn className="h-5 w-5" />
             <span>{t.joinNow}</span>

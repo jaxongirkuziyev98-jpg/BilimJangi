@@ -1,4 +1,5 @@
 import { Moon, Sun, Volume2, VolumeX, WifiOff } from 'lucide-react';
+import { useEffect } from 'react';
 import { TRANSLATIONS } from '../i18n/translations';
 import { Language, SUBJECTS } from '../shared/types';
 import { soundEngine } from '../sounds/soundEngine';
@@ -22,16 +23,22 @@ export function TopBar() {
   const langs: Language[] = ['uz', 'ru', 'en'];
   const activeSubject = room ? SUBJECTS.find((s) => s.id === room.subject) : null;
 
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.title = `${t.appName} — ${t.tagline}`;
+    }
+  }, [t.appName, t.tagline]);
+
   return (
     <>
       <header className="sticky top-0 z-40 w-full border-b border-slate-200/80 dark:border-slate-800/80 bg-white/85 dark:bg-slate-950/85 backdrop-blur-md transition-colors duration-200">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
+        <div className="mx-auto flex h-12 sm:h-16 max-w-6xl items-center justify-between gap-2 sm:gap-4 px-3 sm:px-6">
           {/* Brand Zone */}
-          <div className="flex items-center gap-2.5 shrink-0">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 via-violet-600 to-orange-500 text-white font-display font-extrabold text-lg shadow-sm">
-              B
+          <div className="flex items-center gap-2 sm:gap-2.5 shrink-0 min-w-0">
+            <div className="flex h-7 w-7 sm:h-9 sm:w-9 items-center justify-center rounded-lg sm:rounded-xl bg-gradient-to-br from-blue-600 via-violet-600 to-orange-500 text-white font-display font-extrabold text-sm sm:text-lg shadow-sm shrink-0">
+              {t.appName.charAt(0)}
             </div>
-            <span className="font-display text-xl font-extrabold tracking-tight text-slate-900 dark:text-white whitespace-nowrap shrink-0">
+            <span className="font-display text-base sm:text-xl font-extrabold tracking-tight text-slate-900 dark:text-white whitespace-nowrap shrink-0">
               {t.appName}
             </span>
           </div>
@@ -52,10 +59,10 @@ export function TopBar() {
           )}
 
           {/* Controls Zone */}
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             {/* Language Switcher */}
             <div
-              className="flex items-center rounded-xl bg-slate-100 dark:bg-slate-900 p-1 border border-slate-200/80 dark:border-slate-800"
+              className="flex items-center rounded-lg sm:rounded-xl bg-slate-100 dark:bg-slate-900 p-0.5 sm:p-1 border border-slate-200/80 dark:border-slate-800"
               role="group"
               aria-label="Language"
             >
@@ -67,7 +74,7 @@ export function TopBar() {
                     soundEngine.click();
                     setLanguage(l);
                   }}
-                  className={`px-2.5 py-1 text-xs font-semibold uppercase rounded-lg transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+                  className={`px-2 py-0.5 sm:px-2.5 sm:py-1 text-[11px] sm:text-xs font-semibold uppercase rounded-md sm:rounded-lg transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
                     language === l
                       ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm'
                       : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
@@ -84,7 +91,7 @@ export function TopBar() {
               onClick={toggleSound}
               title={soundEnabled ? t.soundOn : t.soundOff}
               aria-label={soundEnabled ? t.soundOn : t.soundOff}
-              className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer shrink-0"
+              className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-lg sm:rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer shrink-0"
             >
               {soundEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4 text-slate-400" />}
             </button>
@@ -97,7 +104,7 @@ export function TopBar() {
                 toggleTheme();
               }}
               aria-label="Toggle theme"
-              className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-amber-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer shrink-0"
+              className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-lg sm:rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-amber-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer shrink-0"
             >
               {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
             </button>

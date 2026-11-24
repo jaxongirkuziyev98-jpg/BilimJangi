@@ -80,13 +80,13 @@ export function QuestionPanel({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2 }}
-      className={`relative rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 sm:p-7 shadow-sm ${
+      className={`relative rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3 sm:p-7 shadow-sm ${
         hasFeedback && !lastAnswerResult.correct ? 'animate-shake' : ''
       }`}
     >
       {/* Question Header Metadata */}
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-        <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-1.5 sm:mb-4">
+        <div className="flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400">
           <span>
             {subjectMeta?.emoji} {t.subjects[question.subject].name}
           </span>
@@ -99,7 +99,7 @@ export function QuestionPanel({
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className={`flex items-center gap-2 text-sm font-bold ${
+            className={`flex items-center gap-1.5 text-xs sm:text-sm font-bold ${
               lastAnswerResult.correct
                 ? 'text-emerald-600 dark:text-emerald-400'
                 : 'text-red-600 dark:text-red-400'
@@ -107,18 +107,18 @@ export function QuestionPanel({
           >
             {lastAnswerResult.correct ? (
               <>
-                <CheckCircle2 className="h-4 w-4" />
+                <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 <span>{t.correctFeedback}</span>
                 {lastAnswerResult.streakBonus > 0 && (
                   <span className="inline-flex items-center gap-1 text-amber-500 font-extrabold">
-                    <Flame className="h-4 w-4" />
+                    <Flame className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                     {t.streakBonus}
                   </span>
                 )}
               </>
             ) : (
               <>
-                <XCircle className="h-4 w-4" />
+                <XCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 <span>{t.wrongFeedback}</span>
               </>
             )}
@@ -127,16 +127,16 @@ export function QuestionPanel({
       </div>
 
       {/* Question Prompt */}
-      <h2 className="font-display text-xl sm:text-2xl font-bold text-slate-900 dark:text-white leading-snug mb-6">
+      <h2 className="font-display text-base sm:text-2xl font-bold text-slate-900 dark:text-white leading-snug mb-2.5 sm:mb-6">
         {displayText}
       </h2>
 
       {locked && lockedMessage ? (
-        <div className="rounded-xl border border-amber-300 dark:border-amber-700/60 bg-amber-50 dark:bg-amber-950/30 p-4 text-center text-sm font-semibold text-amber-800 dark:text-amber-200">
+        <div className="rounded-xl border border-amber-300 dark:border-amber-700/60 bg-amber-50 dark:bg-amber-950/30 p-3 sm:p-4 text-center text-xs sm:text-sm font-semibold text-amber-800 dark:text-amber-200">
           {lockedMessage}
         </div>
       ) : useNumeric ? (
-        <form onSubmit={handleSubmitNumeric} className="flex flex-col sm:flex-row gap-3">
+        <form onSubmit={handleSubmitNumeric} className="flex flex-col sm:flex-row gap-2 sm:gap-3">
           <input
             type="number"
             inputMode="numeric"
@@ -145,19 +145,19 @@ export function QuestionPanel({
             value={numericValue}
             onChange={(e) => setNumericValue(e.target.value)}
             placeholder={t.typeNumberPlaceholder}
-            className="flex-1 min-h-13 rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 text-xl font-mono font-bold text-slate-900 dark:text-white focus:border-blue-500 focus:outline-none"
+            className="flex-1 min-h-11 sm:min-h-13 rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-3 sm:px-4 text-lg sm:text-xl font-mono font-bold text-slate-900 dark:text-white focus:border-blue-500 focus:outline-none"
           />
           <button
             type="submit"
             disabled={hasFeedback || numericValue.trim() === ''}
-            className="inline-flex min-h-13 items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 text-base font-bold text-white hover:bg-blue-700 disabled:opacity-40 cursor-pointer whitespace-nowrap shrink-0"
+            className="inline-flex min-h-11 sm:min-h-13 items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 sm:px-6 text-sm sm:text-base font-bold text-white hover:bg-blue-700 disabled:opacity-40 cursor-pointer whitespace-nowrap shrink-0"
           >
             <Send className="h-4 w-4" />
             {t.submitAnswer}
           </button>
         </form>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 sm:gap-3">
           {displayOptions.map((opt, idx) => {
             const isPicked = selectedIdx === idx;
             const isCorrectOption = hasFeedback && lastAnswerResult.correctIndex === idx;
@@ -180,10 +180,10 @@ export function QuestionPanel({
                 type="button"
                 disabled={hasFeedback || locked}
                 onClick={() => handlePickOption(idx)}
-                className={`group flex min-h-14 items-center gap-3.5 rounded-xl border-2 px-4 py-3 text-left transition-all duration-150 active:scale-[0.98] cursor-pointer disabled:cursor-default ${btnStyle}`}
+                className={`group flex min-h-11 sm:min-h-14 items-center gap-2.5 sm:gap-3.5 rounded-xl border-2 px-3 sm:px-4 py-1.5 sm:py-3 text-left transition-all duration-150 active:scale-[0.98] cursor-pointer disabled:cursor-default ${btnStyle}`}
               >
                 <span
-                  className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg font-display font-bold text-sm transition-colors ${
+                  className={`flex h-7 w-7 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-lg font-display font-bold text-xs sm:text-sm transition-colors ${
                     isCorrectOption
                       ? 'bg-emerald-600 text-white'
                       : isWrongPicked
@@ -193,7 +193,7 @@ export function QuestionPanel({
                 >
                   {letters[idx]}
                 </span>
-                <span className="text-base font-semibold leading-snug">{opt}</span>
+                <span className="text-sm sm:text-base font-semibold leading-tight sm:leading-snug">{opt}</span>
               </button>
             );
           })}

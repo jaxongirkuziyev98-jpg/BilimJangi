@@ -1,17 +1,19 @@
 # BilimJang
 
-Real vaqtdagi 1v1 ta'limiy bellashuv o'yini (React + Vite + Express + Socket.IO).
+Real vaqtdagi 1v1 jamoaviy va individual ta'limiy bellashuv o'yini — 9 ta fan, 4 xil mini-o'yin.
 
-## Lokal ishga tushirish
-```
+## Ishga tushirish
+
+```bash
 npm install
-npm run dev
+npm run dev        # http://localhost:3000
 ```
-http://localhost:3000
 
-## Render'ga joylash
-Web Service yarating va quyidagilarni kiriting:
+## Production
 
-- Build Command: `npm install && npm run build`
-- Start Command: `npm start`
-- Health Check Path: `/api/health`
+```bash
+npm run build
+npm start
+```
+
+Node.js 20+ kerak. Sozlamalar uchun `.env.example` faylini `.env` ga nusxalang.

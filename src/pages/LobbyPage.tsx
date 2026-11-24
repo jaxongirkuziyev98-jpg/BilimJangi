@@ -226,25 +226,25 @@ export function LobbyPage() {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2 }}
-      className="mx-auto max-w-5xl px-4 sm:px-6 py-8 sm:py-10 space-y-6"
+      className="mx-auto max-w-5xl px-3 sm:px-6 py-4 sm:py-10 space-y-4 sm:space-y-6"
     >
       {/* Top Room Header + Code */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 sm:p-6">
-        <div>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-6">
+        <div className="min-w-0">
           <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
             {t.lobbyTitle} · {room.players.length} {t.duelReadyCount}
           </p>
-          <div className="mt-1.5 flex flex-wrap items-center gap-3">
+          <div className="mt-1 flex flex-wrap items-center gap-2 sm:gap-3">
             <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
               {t.roomCodeLabel}:
             </span>
-            <span className="font-mono text-2xl sm:text-3xl font-extrabold tracking-[0.18em] text-slate-900 dark:text-white tabular-nums">
+            <span className="font-mono text-2xl sm:text-3xl font-extrabold tracking-[0.15em] sm:tracking-[0.18em] text-slate-900 dark:text-white tabular-nums">
               {room.code}
             </span>
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2">
           {isHost && (
             <button
               type="button"
@@ -252,7 +252,7 @@ export function LobbyPage() {
                 soundEngine.click();
                 socketActions.addBot();
               }}
-              className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-violet-600 px-3.5 text-xs font-bold text-white hover:bg-violet-700 cursor-pointer whitespace-nowrap shrink-0"
+              className="inline-flex min-h-10 items-center gap-1.5 sm:gap-2 rounded-xl bg-violet-600 px-3 sm:px-3.5 text-xs font-bold text-white hover:bg-violet-700 cursor-pointer whitespace-nowrap shrink-0"
             >
               <Bot className="h-4 w-4" />
               <span>{t.addBotBtn}</span>
@@ -266,7 +266,7 @@ export function LobbyPage() {
                 soundEngine.click();
                 socketActions.shuffleTeams();
               }}
-              className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3.5 text-xs font-bold text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer whitespace-nowrap shrink-0"
+              className="inline-flex min-h-10 items-center gap-1.5 sm:gap-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 sm:px-3.5 text-xs font-bold text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer whitespace-nowrap shrink-0"
             >
               <Shuffle className="h-4 w-4" />
               <span>{t.shuffleTeamsBtn}</span>
@@ -279,7 +279,7 @@ export function LobbyPage() {
               soundEngine.click();
               socketActions.leaveRoom();
             }}
-            className="inline-flex min-h-10 items-center gap-1.5 rounded-xl border border-red-200 dark:border-red-900/60 bg-red-50 dark:bg-red-950/30 px-3.5 text-xs font-bold text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-950/50 cursor-pointer whitespace-nowrap shrink-0"
+            className="inline-flex min-h-10 items-center gap-1.5 rounded-xl border border-red-200 dark:border-red-900/60 bg-red-50 dark:bg-red-950/30 px-3 sm:px-3.5 text-xs font-bold text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-950/50 cursor-pointer whitespace-nowrap shrink-0"
           >
             <LogOut className="h-4 w-4" />
             <span>{t.leaveRoom}</span>
@@ -288,9 +288,9 @@ export function LobbyPage() {
       </div>
 
       {/* Social Invite & Share Box (Room Code + App Link for Telegram / Instagram) */}
-      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 sm:p-6 space-y-4">
+      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-6 space-y-3 sm:space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="font-display text-base font-bold text-slate-900 dark:text-white">
+          <h2 className="font-display text-sm sm:text-base font-bold text-slate-900 dark:text-white">
             {t.inviteSectionTitle}
           </h2>
           <button
@@ -304,14 +304,14 @@ export function LobbyPage() {
         </div>
 
         {/* Read-only Invite Link + Code Box */}
-        <div className="flex flex-col sm:flex-row gap-2.5">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-2.5 min-w-0">
           <input
             type="text"
             readOnly
             value={inviteUrl}
             onFocus={(e) => e.currentTarget.select()}
             aria-label={t.inviteLinkLabel}
-            className="flex-1 min-h-11 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-3.5 text-xs sm:text-sm font-mono text-slate-700 dark:text-slate-200 focus:outline-none"
+            className="w-full min-w-0 flex-1 min-h-11 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-3 sm:px-3.5 text-xs sm:text-sm font-mono text-slate-700 dark:text-slate-200 focus:outline-none"
           />
           <button
             type="button"
