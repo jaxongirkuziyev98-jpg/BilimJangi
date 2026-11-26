@@ -46,6 +46,7 @@ export const SUBJECT_BANKS_RU: Record<Exclude<SubjectId, 'math'>, BankEntry[]> =
     ['Какой газ также называют «веселящим газом»?', ['N₂O', 'NO₂', 'NH₃', 'SO₂']],
     ['Какая кислота участвует в переваривании пищи в желудке?', ['Уксусная кислота', 'Соляная кислота (HCl)', 'Серная кислота', 'Лимонная кислота']],
     ['Какого цвета металл медь (Cu)?', ['Серебристо-белый', 'Красновато-розовый', 'Голубой', 'Чёрный']],
+    ['Пропустите газ CO₂ через известковую воду. Что с ней произойдёт?', ['Она станет ещё прозрачнее', 'Она замёрзнет', 'Она станет мутно-белой', 'Она засветится']],
   ],
   biology: [
     ['Что является наименьшей структурной и функциональной единицей живых организмов?', ['Ткань', 'Клетка', 'Орган', 'Молекула']],
@@ -225,6 +226,7 @@ export const SUBJECT_BANKS_EN: Record<Exclude<SubjectId, 'math'>, BankEntry[]> =
     ['Which gas is commonly known as "laughing gas"?', ['N₂O', 'NO₂', 'NH₃', 'SO₂']],
     ['Which acid aids digestion inside the human stomach?', ['Acetic acid', 'Hydrochloric acid (HCl)', 'Sulfuric acid', 'Citric acid']],
     ['What color is pure copper (Cu) metal?', ['Silvery-white', 'Reddish-pink', 'Sky blue', 'Black']],
+    ['Pass CO₂ through limewater. What happens to the limewater?', ['It becomes even clearer', 'It freezes', 'It turns cloudy white', 'It glows']],
   ],
   biology: [
     ['What is the smallest structural and functional unit of life?', ['Tissue', 'Cell', 'Organ', 'Molecule']],

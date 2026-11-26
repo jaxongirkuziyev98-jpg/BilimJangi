@@ -12,7 +12,7 @@
   body {
     font-family: var(--font-sans);
     scroll-behavior: smooth;
-    overflow-x: hidden;
+    overflow-x: clip;
     max-width: 100%;
     overscroll-behavior-x: none;
   }

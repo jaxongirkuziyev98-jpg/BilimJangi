@@ -1,6 +1,7 @@
 import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
 import { motion } from 'motion/react';
 import { FormEvent, useState } from 'react';
+import { socketActions } from '../hooks/useSocket';
 import { TRANSLATIONS } from '../i18n/translations';
 import { AVATARS, SUBJECTS, SubjectId } from '../shared/types';
 import { soundEngine } from '../sounds/soundEngine';
@@ -9,6 +10,7 @@ import { useGameStore } from '../store/useGameStore';
 export function ProfileSubjectPage() {
   const {
     language,
+    authProfile,
     playerName,
     playerAvatar,
     selectedSubject,
@@ -18,7 +20,7 @@ export function ProfileSubjectPage() {
   } = useGameStore();
   const t = TRANSLATIONS[language];
 
-  const [name, setName] = useState(playerName);
+  const [name, setName] = useState(playerName || authProfile?.fullName || '');
   const [avatar, setAvatar] = useState(playerAvatar || AVATARS[0]);
   const [subject, setSubject] = useState<SubjectId>(selectedSubject || 'math');
   const [nameError, setNameError] = useState(false);
@@ -26,12 +28,16 @@ export function ProfileSubjectPage() {
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     const trimmed = name.trim();
-    if (trimmed.length < 2 || trimmed.length > 15) {
+    if (trimmed.length < 2 || trimmed.length > 36) {
       setNameError(true);
       return;
     }
     soundEngine.click();
     setPlayerProfile(trimmed, avatar, subject);
+    const updatedAuth = useGameStore.getState().authProfile;
+    if (updatedAuth) {
+      socketActions.registerProfile(updatedAuth);
+    }
     setScreen(flowIntent === 'create' ? 'create_room' : 'join_room');
   };
 
@@ -76,7 +82,7 @@ export function ProfileSubjectPage() {
             <input
               id="player-name-input"
               type="text"
-              maxLength={15}
+              maxLength={36}
               value={name}
               onChange={(e) => {
                 setName(e.target.value);

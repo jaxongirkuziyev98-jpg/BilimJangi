@@ -8,12 +8,16 @@ import {
   Difficulty,
   DuelSide,
   GameType,
+  IncomingGameInvite,
+  Language,
+  LeaderboardEntry,
   MathInputMode,
   PublicQuestion,
   PublicRoomState,
   QuestionMode,
   ServerQuestion,
   SubjectId,
+  UserAuthProfile,
 } from '../shared/types';
 import { useGameStore } from '../store/useGameStore';
 
@@ -32,6 +36,23 @@ export function getSocket(): Socket {
   return socketInstance;
 }
 
+function emitProfileRegistration(socket: Socket, auth: UserAuthProfile): void {
+  socket.emit('register_profile', {
+    token: auth.token,
+    firstName: auth.firstName,
+    lastName: auth.lastName,
+    fullName: auth.fullName,
+    avatar: auth.avatar,
+    favoriteSubject: auth.favoriteSubject,
+    xp: auth.xp,
+    wins: auth.wins,
+    matchesPlayed: auth.matchesPlayed,
+    correctTotal: auth.totalCorrect,
+    wrongTotal: auth.totalWrong,
+    giftsCount: auth.gifts.length,
+  });
+}
+
 export function useSocketSync(): void {
   useEffect(() => {
     const socket = getSocket();
@@ -45,7 +66,7 @@ export function useSocketSync(): void {
         store.setPrefilledCode(urlCode);
         store.setFlowIntent('join');
         if (!store.room) {
-          store.setScreen('profile');
+          store.setScreen(store.authProfile ? 'join_room' : 'login');
         }
       }
     }
@@ -56,6 +77,12 @@ export function useSocketSync(): void {
     socket.on('connect', () => {
       const store = useGameStore.getState();
       store.setConnected(true, false);
+
+      if (store.authProfile) {
+        emitProfileRegistration(socket, store.authProfile);
+      } else {
+        socket.emit('get_leaderboard');
+      }
 
       const saved = store.getSavedSession();
       if (saved && (store.room || saved.code)) {
@@ -72,6 +99,22 @@ export function useSocketSync(): void {
       const store = useGameStore.getState();
       store.setConnected(false, Boolean(store.room));
     });
+
+    socket.on('leaderboard_update', (entries: LeaderboardEntry[]) => {
+      useGameStore.getState().setLeaderboard(entries);
+    });
+
+    socket.on('incoming_invite', (invite: IncomingGameInvite) => {
+      soundEngine.click();
+      useGameStore.getState().setIncomingInvite(invite);
+    });
+
+    socket.on(
+      'invite_sent',
+      (data: { roomCode: string; targetName: string; delivered: boolean }) => {
+        useGameStore.getState().setOutgoingInviteInfo(data);
+      }
+    );
 
     socket.on('room_created', (data: { room: PublicRoomState; playerId: string }) => {
       useGameStore.getState().setRoomSession(data.room, data.playerId);
@@ -188,6 +231,26 @@ export function useSocketSync(): void {
 }
 
 export const socketActions = {
+  registerProfile(auth: UserAuthProfile) {
+    emitProfileRegistration(getSocket(), auth);
+  },
+
+  updateFavoriteSubject(subject: SubjectId) {
+    const store = useGameStore.getState();
+    getSocket().emit('update_favorite_subject', {
+      token: store.playerToken,
+      subject,
+    });
+  },
+
+  requestLeaderboard() {
+    getSocket().emit('get_leaderboard');
+  },
+
+  sendGameInvite(targetToken: string, subject?: SubjectId) {
+    getSocket().emit('send_game_invite', { targetToken, subject });
+  },
+
   createRoom(payload: {
     subject: SubjectId;
     difficulty: Difficulty;
@@ -201,7 +264,7 @@ export const socketActions = {
     const store = useGameStore.getState();
     getSocket().emit('create_room', {
       token: store.playerToken,
-      name: store.playerName,
+      name: store.playerName || store.authProfile?.fullName || '',
       avatar: store.playerAvatar,
       ...payload,
     });
@@ -212,7 +275,7 @@ export const socketActions = {
     getSocket().emit('join_room', {
       code: code.trim().toUpperCase(),
       token: store.playerToken,
-      name: store.playerName,
+      name: store.playerName || store.authProfile?.fullName || '',
       avatar: store.playerAvatar,
     });
   },
@@ -263,7 +326,14 @@ export const socketActions = {
     getSocket().emit('start_game');
   },
 
-  submitAnswer(payload: { questionId: string; optionIndex?: number; numericValue?: number }) {
+  submitAnswer(payload: {
+    questionId: string;
+    optionIndex?: number;
+    numericValue?: number;
+    countryId?: string;
+    textAnswer?: string;
+    language?: Language;
+  }) {
     getSocket().emit('submit_answer', payload);
   },
 

@@ -3,12 +3,17 @@ import { motion } from 'motion/react';
 import { FormEvent, useEffect, useState } from 'react';
 import { socketActions } from '../hooks/useSocket';
 import { TRANSLATIONS } from '../i18n/translations';
-import { MathInputMode, PublicQuestion, SUBJECTS } from '../shared/types';
+import { MathInputMode, PublicQuestion, PublicRoomState, SUBJECTS } from '../shared/types';
 import { soundEngine } from '../sounds/soundEngine';
 import { useGameStore } from '../store/useGameStore';
+import { QuestionVisual } from './QuestionVisual';
+import { MapHuntArena } from './arenas/MapHuntArena';
 
 interface QuestionPanelProps {
   question: PublicQuestion | null;
+  room: PublicRoomState;
+  myId: string | null;
+  questionRound: number;
   mathInputMode: MathInputMode;
   locked?: boolean;
   lockedMessage?: string;
@@ -16,6 +21,9 @@ interface QuestionPanelProps {
 
 export function QuestionPanel({
   question,
+  room,
+  myId,
+  questionRound,
   mathInputMode,
   locked = false,
   lockedMessage,
@@ -33,11 +41,24 @@ export function QuestionPanel({
 
   if (!question || !question.text) {
     return (
-      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 text-center">
+      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 text-center">
         <p className="text-slate-500 dark:text-slate-400 font-medium">
           {t.waitingNextRound}
         </p>
       </div>
+    );
+  }
+
+  // If a Geography question inside a normal mode (subject_battle/tug_of_war/race) is an interactive country click, render the clickable map right here!
+  if (question.isMapQuestion && !locked) {
+    return (
+      <MapHuntArena
+        room={room}
+        myId={myId}
+        question={question}
+        questionRound={questionRound}
+        compact
+      />
     );
   }
 
@@ -53,6 +74,7 @@ export function QuestionPanel({
     socketActions.submitAnswer({
       questionId: question.id,
       optionIndex: idx,
+      language,
     });
   };
 
@@ -65,6 +87,7 @@ export function QuestionPanel({
     socketActions.submitAnswer({
       questionId: question.id,
       numericValue: parsed,
+      language,
     });
   };
 
@@ -73,6 +96,7 @@ export function QuestionPanel({
   const activeContent = question.localized?.[language];
   const displayText = activeContent?.text ?? question.text;
   const displayOptions = activeContent?.options ?? question.options;
+  const hasVisual = Boolean(question.visualId);
 
   return (
     <motion.div
@@ -80,12 +104,12 @@ export function QuestionPanel({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2 }}
-      className={`relative rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3 sm:p-7 shadow-sm ${
+      className={`relative rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3 sm:p-5 shadow-sm ${
         hasFeedback && !lastAnswerResult.correct ? 'animate-shake' : ''
       }`}
     >
       {/* Question Header Metadata */}
-      <div className="flex flex-wrap items-center justify-between gap-2 mb-1.5 sm:mb-4">
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-1.5 sm:mb-3">
         <div className="flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400">
           <span>
             {subjectMeta?.emoji} {t.subjects[question.subject].name}
@@ -127,7 +151,7 @@ export function QuestionPanel({
       </div>
 
       {/* Question Prompt */}
-      <h2 className="font-display text-base sm:text-2xl font-bold text-slate-900 dark:text-white leading-snug mb-2.5 sm:mb-6">
+      <h2 className="font-display text-base sm:text-xl font-bold text-slate-900 dark:text-white leading-snug mb-2.5 sm:mb-4">
         {displayText}
       </h2>
 
@@ -135,68 +159,99 @@ export function QuestionPanel({
         <div className="rounded-xl border border-amber-300 dark:border-amber-700/60 bg-amber-50 dark:bg-amber-950/30 p-3 sm:p-4 text-center text-xs sm:text-sm font-semibold text-amber-800 dark:text-amber-200">
           {lockedMessage}
         </div>
-      ) : useNumeric ? (
-        <form onSubmit={handleSubmitNumeric} className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-          <input
-            type="number"
-            inputMode="numeric"
-            autoFocus
-            disabled={hasFeedback}
-            value={numericValue}
-            onChange={(e) => setNumericValue(e.target.value)}
-            placeholder={t.typeNumberPlaceholder}
-            className="flex-1 min-h-11 sm:min-h-13 rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-3 sm:px-4 text-lg sm:text-xl font-mono font-bold text-slate-900 dark:text-white focus:border-blue-500 focus:outline-none"
-          />
-          <button
-            type="submit"
-            disabled={hasFeedback || numericValue.trim() === ''}
-            className="inline-flex min-h-11 sm:min-h-13 items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 sm:px-6 text-sm sm:text-base font-bold text-white hover:bg-blue-700 disabled:opacity-40 cursor-pointer whitespace-nowrap shrink-0"
-          >
-            <Send className="h-4 w-4" />
-            {t.submitAnswer}
-          </button>
-        </form>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 sm:gap-3">
-          {displayOptions.map((opt, idx) => {
-            const isPicked = selectedIdx === idx;
-            const isCorrectOption = hasFeedback && lastAnswerResult.correctIndex === idx;
-            const isWrongPicked = hasFeedback && isPicked && !lastAnswerResult.correct;
+        <div
+          className={
+            hasVisual
+              ? 'grid grid-cols-1 md:grid-cols-12 gap-3 sm:gap-4 items-center'
+              : 'block'
+          }
+        >
+          {/* Optional Framed Question Picture / Scientific Diagram (image_28e77e4c.png) */}
+          {question.visualId && (
+            <div className="md:col-span-5 flex justify-center">
+              <QuestionVisual
+                visualId={question.visualId}
+                className="w-full max-w-[210px] sm:max-w-[250px] h-24 sm:h-40 p-2 shadow-xs"
+              />
+            </div>
+          )}
 
-            let btnStyle =
-              'border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50/50 dark:hover:bg-blue-950/30 text-slate-900 dark:text-white';
-
-            if (isCorrectOption) {
-              btnStyle =
-                'border-emerald-500 bg-emerald-500/15 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-200';
-            } else if (isWrongPicked) {
-              btnStyle =
-                'border-red-500 bg-red-500/15 dark:bg-red-500/20 text-red-800 dark:text-red-200';
-            }
-
-            return (
-              <button
-                key={idx}
-                type="button"
-                disabled={hasFeedback || locked}
-                onClick={() => handlePickOption(idx)}
-                className={`group flex min-h-11 sm:min-h-14 items-center gap-2.5 sm:gap-3.5 rounded-xl border-2 px-3 sm:px-4 py-1.5 sm:py-3 text-left transition-all duration-150 active:scale-[0.98] cursor-pointer disabled:cursor-default ${btnStyle}`}
+          <div className={hasVisual ? 'md:col-span-7' : ''}>
+            {useNumeric ? (
+              <form
+                onSubmit={handleSubmitNumeric}
+                className="flex flex-col sm:flex-row gap-2 sm:gap-3"
               >
-                <span
-                  className={`flex h-7 w-7 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-lg font-display font-bold text-xs sm:text-sm transition-colors ${
-                    isCorrectOption
-                      ? 'bg-emerald-600 text-white'
-                      : isWrongPicked
-                        ? 'bg-red-600 text-white'
-                        : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 group-hover:border-blue-400'
-                  }`}
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  autoFocus
+                  disabled={hasFeedback}
+                  value={numericValue}
+                  onChange={(e) => setNumericValue(e.target.value)}
+                  placeholder={t.typeNumberPlaceholder}
+                  className="flex-1 min-h-11 sm:min-h-13 rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-3 sm:px-4 text-lg sm:text-xl font-mono font-bold text-slate-900 dark:text-white focus:border-blue-500 focus:outline-none"
+                />
+                <button
+                  type="submit"
+                  disabled={hasFeedback || numericValue.trim() === ''}
+                  className="inline-flex min-h-11 sm:min-h-13 items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 sm:px-6 text-sm sm:text-base font-bold text-white hover:bg-blue-700 disabled:opacity-40 cursor-pointer whitespace-nowrap shrink-0"
                 >
-                  {letters[idx]}
-                </span>
-                <span className="text-sm sm:text-base font-semibold leading-tight sm:leading-snug">{opt}</span>
-              </button>
-            );
-          })}
+                  <Send className="h-4 w-4" />
+                  {t.submitAnswer}
+                </button>
+              </form>
+            ) : (
+              <div
+                className={`grid gap-1.5 sm:gap-2.5 ${
+                  hasVisual ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2'
+                }`}
+              >
+                {displayOptions.map((opt, idx) => {
+                  const isPicked = selectedIdx === idx;
+                  const isCorrectOption = hasFeedback && lastAnswerResult.correctIndex === idx;
+                  const isWrongPicked = hasFeedback && isPicked && !lastAnswerResult.correct;
+
+                  let btnStyle =
+                    'border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50/50 dark:hover:bg-blue-950/30 text-slate-900 dark:text-white';
+
+                  if (isCorrectOption) {
+                    btnStyle =
+                      'border-emerald-500 bg-emerald-500/15 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-200';
+                  } else if (isWrongPicked) {
+                    btnStyle =
+                      'border-red-500 bg-red-500/15 dark:bg-red-500/20 text-red-800 dark:text-red-200';
+                  }
+
+                  return (
+                    <button
+                      key={idx}
+                      type="button"
+                      disabled={hasFeedback || locked}
+                      onClick={() => handlePickOption(idx)}
+                      className={`group flex min-h-10 sm:min-h-12 items-center gap-2.5 sm:gap-3 rounded-xl border-2 px-3 sm:px-3.5 py-1.5 sm:py-2 text-left transition-all duration-150 active:scale-[0.98] cursor-pointer disabled:cursor-default ${btnStyle}`}
+                    >
+                      <span
+                        className={`flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-lg font-display font-bold text-xs sm:text-sm transition-colors ${
+                          isCorrectOption
+                            ? 'bg-emerald-600 text-white'
+                            : isWrongPicked
+                              ? 'bg-red-600 text-white'
+                              : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 group-hover:border-blue-400'
+                        }`}
+                      >
+                        {letters[idx]}
+                      </span>
+                      <span className="text-xs sm:text-sm font-semibold leading-tight sm:leading-snug">
+                        {opt}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
       )}
     </motion.div>

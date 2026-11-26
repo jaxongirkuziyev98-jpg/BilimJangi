@@ -3,6 +3,7 @@ import express from 'express';
 import http from 'http';
 import path from 'path';
 import { Server } from 'socket.io';
+import { handleAiChat, handleAiSpeak, handleExplainMistakes } from './src/server/aiService';
 import { attachGameServer } from './src/server/gameServer';
 
 dotenv.config();
@@ -17,13 +18,21 @@ async function bootstrap(): Promise<void> {
     },
   });
 
-  app.use(express.json());
+  app.use(express.json({ limit: '1mb' }));
+
+  const gameServer = attachGameServer(io);
 
   app.get('/api/health', (_req, res) => {
     res.json({ ok: true, service: 'BilimJang' });
   });
 
-  attachGameServer(io);
+  app.get('/api/leaderboard', (_req, res) => {
+    res.json(gameServer.getLeaderboard());
+  });
+
+  app.post('/api/ai/explain-mistakes', handleExplainMistakes);
+  app.post('/api/ai/speak', handleAiSpeak);
+  app.post('/api/ai/chat', handleAiChat);
 
   const isProd = process.env.NODE_ENV === 'production';
 

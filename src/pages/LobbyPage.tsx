@@ -53,7 +53,15 @@ export function LobbyPage() {
     inviteUrl
   )}&text=${encodeURIComponent(fullInviteText)}`;
 
-  const gameTypes: GameType[] = ['subject_battle', 'tug_of_war', 'race', 'quick_answer'];
+  const gameTypes: GameType[] = [
+    'subject_battle',
+    'tug_of_war',
+    'race',
+    'quick_answer',
+    'map_hunt',
+    'zoom_guess',
+    'true_false',
+  ];
 
   const handleCopyCode = async () => {
     soundEngine.click();
@@ -496,7 +504,7 @@ export function LobbyPage() {
         )}
       </div>
 
-      {/* 4 Mini-Games Selector */}
+      {/* Mini-Games Selector */}
       <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 sm:p-6">
         <h2 className="font-display text-lg font-bold text-slate-900 dark:text-white mb-4">
           {t.chooseGameTitle}

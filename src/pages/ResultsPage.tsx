@@ -1,7 +1,8 @@
 import confetti from 'canvas-confetti';
-import { Crown, Home, LayoutGrid, RotateCcw, Trophy } from 'lucide-react';
+import { Award, Crown, Gift, Home, LayoutGrid, RotateCcw, Sparkles, Trophy } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useEffect } from 'react';
+import { AiMistakeTutor } from '../components/AiMistakeTutor';
 import { socketActions } from '../hooks/useSocket';
 import { TRANSLATIONS } from '../i18n/translations';
 import { SUBJECTS } from '../shared/types';
@@ -9,7 +10,7 @@ import { soundEngine } from '../sounds/soundEngine';
 import { useGameStore } from '../store/useGameStore';
 
 export function ResultsPage() {
-  const { language, room, playerId } = useGameStore();
+  const { language, room, playerId, setScreen } = useGameStore();
   const t = TRANSLATIONS[language];
 
   useEffect(() => {
@@ -33,6 +34,9 @@ export function ResultsPage() {
   const teamA = room.players.filter((p) => p.side === 'A');
   const teamB = room.players.filter((p) => p.side === 'B');
   const subjectMeta = SUBJECTS.find((s) => s.id === room.subject);
+  const myPlayer = room.players.find((p) => p.id === playerId);
+  const didIWin = Boolean(myPlayer && room.winner !== 'draw' && myPlayer.side === room.winner);
+  const awardedGift = myPlayer?.earnedGift ?? (didIWin ? room.winnerGift : null);
 
   let headline = t.resultsDraw;
   if (room.winner === 'A') {
@@ -64,10 +68,10 @@ export function ResultsPage() {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25 }}
-      className="mx-auto max-w-4xl px-3 sm:px-6 py-4 sm:py-12 space-y-4 sm:space-y-6"
+      className="mx-auto max-w-4xl px-3 sm:px-6 py-4 sm:py-10 space-y-5 sm:space-y-6"
     >
       {/* Winner Banner */}
-      <div className="rounded-2xl sm:rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 sm:p-10 text-center shadow-sm">
+      <div className="rounded-2xl sm:rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 sm:p-8 text-center shadow-sm">
         <div className="mx-auto mb-3 sm:mb-4 flex h-12 w-12 sm:h-16 sm:w-16 items-center justify-center rounded-2xl bg-amber-500/15 text-amber-500">
           {room.winner === 'draw' ? (
             <span className="text-3xl sm:text-4xl">🤝</span>
@@ -80,7 +84,7 @@ export function ResultsPage() {
           {subjectMeta?.emoji} {t.subjects[room.subject].name} · {t.games[room.gameType].name}
         </p>
 
-        <h1 className="font-display text-2xl sm:text-5xl font-extrabold text-slate-900 dark:text-white">
+        <h1 className="font-display text-2xl sm:text-4xl font-extrabold text-slate-900 dark:text-white">
           {headline}
         </h1>
 
@@ -90,8 +94,41 @@ export function ResultsPage() {
           </p>
         )}
 
+        {/* Winner Gift Reveal & XP Reward */}
+        {(awardedGift || (myPlayer?.earnedXp ?? 0) > 0) && (
+          <div className="mt-5 mx-auto max-w-lg rounded-2xl border border-amber-300 dark:border-amber-700/70 bg-gradient-to-r from-amber-50 via-yellow-50 to-orange-50 dark:from-amber-950/40 dark:via-yellow-950/30 dark:to-orange-950/30 p-4 text-left shadow-sm">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-400/20 text-3xl">
+                  {awardedGift ? awardedGift.icon : <Sparkles className="h-6 w-6 text-amber-500" />}
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-amber-700 dark:text-amber-300">
+                    <Gift className="h-3.5 w-3.5" />
+                    <span>{awardedGift ? t.winnerGiftTitle : t.xpEarnedLabel}</span>
+                  </div>
+                  <p className="font-display text-sm sm:text-base font-extrabold text-slate-900 dark:text-white truncate">
+                    {awardedGift ? awardedGift.name[language] : `+${myPlayer?.earnedXp ?? 15} XP`}
+                  </p>
+                  <p className="text-xs text-slate-600 dark:text-slate-300">
+                    {awardedGift ? awardedGift.desc[language] : t.statsSubtitle}
+                  </p>
+                </div>
+              </div>
+
+              {myPlayer?.earnedXp && (
+                <div className="shrink-0 text-right">
+                  <span className="font-mono text-base sm:text-lg font-extrabold tabular-nums text-amber-600 dark:text-amber-400">
+                    +{myPlayer.earnedXp} XP
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Team Score Comparison */}
-        <div className="mt-5 sm:mt-8 grid grid-cols-2 gap-2.5 sm:gap-4 max-w-xl mx-auto">
+        <div className="mt-5 sm:mt-7 grid grid-cols-2 gap-2.5 sm:gap-4 max-w-xl mx-auto">
           {[
             { side: 'A' as const, members: teamA, score: room.teamAScore, label: t.teamALabel },
             { side: 'B' as const, members: teamB, score: room.teamBScore, label: t.teamBLabel },
@@ -145,7 +182,7 @@ export function ResultsPage() {
 
       {/* Detailed Leaderboard Table */}
       <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-sm">
-        <div className="overflow-x-auto">
+        <div className="w-full">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-slate-200 dark:border-slate-800 text-[11px] sm:text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-950/60">
@@ -221,8 +258,20 @@ export function ResultsPage() {
         </div>
       </div>
 
+      {/* AI Mistake Explainer & Tutor (Written, Visual Sketch & Voice Audio) */}
+      {myPlayer && (
+        <AiMistakeTutor
+          playerName={myPlayer.name}
+          subject={room.subject}
+          language={language}
+          correctCount={myPlayer.correctCount}
+          wrongCount={myPlayer.wrongCount}
+          attempts={myPlayer.attempts ?? []}
+        />
+      )}
+
       {/* Action Buttons */}
-      <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+      <div className="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-3 pb-4">
         {isHost && (
           <>
             <button
@@ -250,6 +299,19 @@ export function ResultsPage() {
             </button>
           </>
         )}
+
+        <button
+          type="button"
+          onClick={() => {
+            soundEngine.click();
+            socketActions.leaveRoom();
+            setScreen('dashboard');
+          }}
+          className="inline-flex min-h-12 w-full sm:w-auto items-center justify-center gap-2 rounded-2xl border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/30 px-6 py-3 font-display text-sm font-bold text-amber-800 dark:text-amber-300 hover:brightness-95 cursor-pointer whitespace-nowrap shrink-0"
+        >
+          <Award className="h-4 w-4" />
+          <span>{t.navProfile}</span>
+        </button>
 
         <button
           type="button"

@@ -13,7 +13,14 @@ export type SubjectId =
 
 export type Difficulty = 'easy' | 'medium' | 'hard';
 
-export type GameType = 'subject_battle' | 'tug_of_war' | 'race' | 'quick_answer';
+export type GameType =
+  | 'subject_battle'
+  | 'tug_of_war'
+  | 'race'
+  | 'quick_answer'
+  | 'map_hunt'
+  | 'zoom_guess'
+  | 'true_false';
 
 export type DuelSide = 'A' | 'B';
 
@@ -22,6 +29,39 @@ export type RoomStatus = 'lobby' | 'countdown' | 'playing' | 'paused' | 'finishe
 export type QuestionMode = 'auto' | 'custom';
 
 export type MathInputMode = 'choice' | 'numeric';
+
+export type QuestionVisualId =
+  | 'limewater_co2'
+  | 'water_molecule'
+  | 'atom_bohr'
+  | 'ph_scale'
+  | 'ohm_circuit'
+  | 'newton_force'
+  | 'magnet_poles'
+  | 'plant_cell'
+  | 'human_heart'
+  | 'dna_helix'
+  | 'earth_equator'
+  | 'ozone_shield'
+  | 'solar_system'
+  | 'binary_bits'
+  | 'triangle_math'
+  | 'gold_ingot'
+  | 'compass_wind'
+  | 'zoom_cat'
+  | 'zoom_sun'
+  | 'zoom_leaf'
+  | 'zoom_moon'
+  | 'zoom_rocket'
+  | 'zoom_key'
+  | 'zoom_globe'
+  | 'zoom_flask'
+  | 'zoom_magnet'
+  | 'zoom_crown'
+  | 'zoom_apple'
+  | 'zoom_clock'
+  | 'zoom_eye'
+  | 'zoom_diamond';
 
 export interface SubjectMeta {
   id: SubjectId;
@@ -145,6 +185,11 @@ export interface ServerQuestion {
   correctIndex: number;
   numericAnswer?: number;
   difficulty: Difficulty;
+  visualId?: QuestionVisualId;
+  mapCountryId?: string;
+  zoomWord?: Record<Language, string>;
+  scrambledLetters?: Record<Language, string[]>;
+  isTrueFalse?: boolean;
   localized?: Record<Language, LocalizedQuestionContent>;
 }
 
@@ -155,6 +200,12 @@ export interface PublicQuestion {
   options: [string, string, string, string];
   difficulty: Difficulty;
   supportsNumeric: boolean;
+  visualId?: QuestionVisualId;
+  isMapQuestion?: boolean;
+  isZoomQuestion?: boolean;
+  isTrueFalse?: boolean;
+  zoomWordLengths?: Record<Language, number>;
+  scrambledLetters?: Record<Language, string[]>;
   localized?: Record<Language, LocalizedQuestionContent>;
 }
 
@@ -162,6 +213,29 @@ export interface CustomQuestionInput {
   text: string;
   options: [string, string, string, string];
   correctIndex: number;
+}
+
+export interface AnswerAttempt {
+  questionId: string;
+  subject: SubjectId;
+  text: string;
+  options: [string, string, string, string];
+  chosenIndex: number;
+  chosenText: string;
+  correctIndex: number;
+  correctText: string;
+  correct: boolean;
+  localized?: Record<Language, LocalizedQuestionContent>;
+}
+
+export interface GiftReward {
+  id: string;
+  icon: string;
+  rarity: 'common' | 'rare' | 'epic' | 'legendary';
+  xpBonus: number;
+  name: Record<Language, string>;
+  desc: Record<Language, string>;
+  unlockedAt: number;
 }
 
 export interface Player {
@@ -178,6 +252,9 @@ export interface Player {
   bestStreak: number;
   progress: number;
   connected: boolean;
+  attempts?: AnswerAttempt[];
+  earnedGift?: GiftReward | null;
+  earnedXp?: number;
 }
 
 export interface QuickRoundWinner {
@@ -217,6 +294,8 @@ export interface PublicRoomState {
   winner: DuelSide | 'draw' | null;
   mvpPlayerId: string | null;
   winReason: 'score' | 'rope' | 'race' | 'rounds' | 'accuracy' | 'draw' | 'host_ended' | null;
+  winnerGift?: GiftReward | null;
+  matchId?: string;
 }
 
 export interface AnswerResultPayload {
@@ -227,4 +306,90 @@ export interface AnswerResultPayload {
   newScore: number;
   streak: number;
   correctIndex: number;
+  correctCountryId?: string;
+  chosenCountryId?: string;
+  correctWord?: string;
+}
+
+export interface UserAuthProfile {
+  token: string;
+  firstName: string;
+  lastName: string;
+  fullName: string;
+  avatar: string;
+  favoriteSubject: SubjectId;
+  xp: number;
+  matchesPlayed: number;
+  wins: number;
+  totalCorrect: number;
+  totalWrong: number;
+  totalMinutesPlayed: number;
+  gifts: GiftReward[];
+}
+
+export interface LeaderboardEntry {
+  playerToken: string;
+  fullName: string;
+  firstName: string;
+  lastName: string;
+  avatar: string;
+  favoriteSubject: SubjectId;
+  xp: number;
+  level: number;
+  wins: number;
+  matchesPlayed: number;
+  correctTotal: number;
+  wrongTotal: number;
+  giftsCount: number;
+  online: boolean;
+  isBot?: boolean;
+  inRoomCode?: string;
+  rank?: number;
+}
+
+export interface IncomingGameInvite {
+  inviteId: string;
+  fromToken: string;
+  fromName: string;
+  fromAvatar: string;
+  roomCode: string;
+  subject: SubjectId;
+  gameType: GameType;
+  createdAt: number;
+}
+
+export interface AiDiagramNode {
+  label: string;
+  sublabel?: string;
+  status?: 'wrong' | 'correct' | 'neutral' | 'step';
+}
+
+export interface AiDiagramSpec {
+  type: 'equation_steps' | 'comparison_bars' | 'concept_diagram';
+  title: string;
+  formula?: string;
+  wrongLabel?: string;
+  wrongValue?: number;
+  correctLabel?: string;
+  correctValue?: number;
+  nodes: AiDiagramNode[];
+  conclusion: string;
+}
+
+export interface AiMistakeAnalysis {
+  question: string;
+  yourAnswer: string;
+  correctAnswer: string;
+  explanation: string;
+  ruleTip: string;
+  diagram: AiDiagramSpec;
+}
+
+export interface AiExplainResponse {
+  correctCount: number;
+  wrongCount: number;
+  greeting: string;
+  overallSummary: string;
+  spokenScript: string;
+  mistakes: AiMistakeAnalysis[];
 }

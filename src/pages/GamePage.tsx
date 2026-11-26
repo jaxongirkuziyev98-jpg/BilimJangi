@@ -2,10 +2,13 @@ import { Clock, Pause, Play, Square } from 'lucide-react';
 import { motion } from 'motion/react';
 import { CountdownOverlay } from '../components/CountdownOverlay';
 import { QuestionPanel } from '../components/QuestionPanel';
+import { MapHuntArena } from '../components/arenas/MapHuntArena';
 import { QuickAnswerArena } from '../components/arenas/QuickAnswerArena';
 import { RaceArena } from '../components/arenas/RaceArena';
 import { SubjectBattleArena } from '../components/arenas/SubjectBattleArena';
+import { TrueFalseArena } from '../components/arenas/TrueFalseArena';
 import { TugOfWarArena } from '../components/arenas/TugOfWarArena';
+import { ZoomGuessArena } from '../components/arenas/ZoomGuessArena';
 import { socketActions } from '../hooks/useSocket';
 import { TRANSLATIONS } from '../i18n/translations';
 import { SUBJECTS } from '../shared/types';
@@ -19,7 +22,7 @@ function formatTime(seconds: number): string {
 }
 
 export function GamePage() {
-  const { language, room, playerId, currentQuestion } = useGameStore();
+  const { language, room, playerId, currentQuestion, questionRound } = useGameStore();
   const t = TRANSLATIONS[language];
 
   if (!room) return null;
@@ -27,6 +30,10 @@ export function GamePage() {
   const isHost = playerId === room.hostId;
   const subjectMeta = SUBJECTS.find((s) => s.id === room.subject);
   const isUrgent = room.timeLeft <= 10 && room.status === 'playing';
+  const isStandaloneArena =
+    room.gameType === 'map_hunt' ||
+    room.gameType === 'zoom_guess' ||
+    room.gameType === 'true_false';
 
   const isQuickLocked =
     room.gameType === 'quick_answer' &&
@@ -40,10 +47,10 @@ export function GamePage() {
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.2 }}
-        className="mx-auto max-w-4xl h-[calc(100dvh-3rem)] sm:h-auto overflow-hidden sm:overflow-visible flex flex-col justify-between sm:block px-3 sm:px-6 py-2 sm:py-8 gap-2 sm:space-y-5"
+        className="mx-auto max-w-4xl h-[calc(100dvh-3rem)] sm:h-[calc(100dvh-4rem)] overflow-hidden flex flex-col justify-between px-3 sm:px-6 py-2 sm:py-4 gap-2 sm:gap-3"
       >
         {/* Top Match HUD */}
-        <div className="flex items-center justify-between gap-2 sm:gap-3 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 sm:px-5 py-1.5 sm:py-3 shrink-0">
+        <div className="flex items-center justify-between gap-2 sm:gap-3 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 sm:px-5 py-1.5 sm:py-2.5 shrink-0">
           <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100 min-w-0">
             <span className="shrink-0">{subjectMeta?.emoji}</span>
             <span className="truncate">{t.subjects[room.subject].name}</span>
@@ -108,33 +115,57 @@ export function GamePage() {
           )}
         </div>
 
-        {/* Active Game Arena */}
-        <div className="shrink-0">
-          {room.gameType === 'subject_battle' && (
-            <SubjectBattleArena room={room} myId={playerId} />
-          )}
-          {room.gameType === 'tug_of_war' && (
-            <TugOfWarArena room={room} myId={playerId} />
-          )}
-          {room.gameType === 'race' && (
-            <RaceArena room={room} myId={playerId} />
-          )}
-          {room.gameType === 'quick_answer' && (
-            <QuickAnswerArena room={room} myId={playerId} />
-          )}
-        </div>
+        {isStandaloneArena ? (
+          <div className="flex-1 min-h-0 flex flex-col justify-center">
+            {room.gameType === 'map_hunt' && (
+              <MapHuntArena
+                room={room}
+                myId={playerId}
+                question={currentQuestion}
+                questionRound={questionRound}
+              />
+            )}
+            {room.gameType === 'zoom_guess' && (
+              <ZoomGuessArena room={room} question={currentQuestion} />
+            )}
+            {room.gameType === 'true_false' && (
+              <TrueFalseArena room={room} myId={playerId} question={currentQuestion} />
+            )}
+          </div>
+        ) : (
+          <>
+            {/* Classic Game Arena */}
+            <div className="shrink-0">
+              {room.gameType === 'subject_battle' && (
+                <SubjectBattleArena room={room} myId={playerId} />
+              )}
+              {room.gameType === 'tug_of_war' && (
+                <TugOfWarArena room={room} myId={playerId} />
+              )}
+              {room.gameType === 'race' && (
+                <RaceArena room={room} myId={playerId} />
+              )}
+              {room.gameType === 'quick_answer' && (
+                <QuickAnswerArena room={room} myId={playerId} />
+              )}
+            </div>
 
-        {/* Active Question Panel */}
-        <div className="flex-1 min-h-0 overflow-y-auto sm:overflow-visible flex flex-col justify-center sm:block">
-          <QuestionPanel
-            question={currentQuestion}
-            mathInputMode={room.mathInputMode}
-            locked={isQuickLocked || Boolean(room.quickRoundWinner)}
-            lockedMessage={
-              isQuickLocked && !room.quickRoundWinner ? t.lockedThisRound : undefined
-            }
-          />
-        </div>
+            {/* Active Question Panel */}
+            <div className="flex-1 min-h-0 overflow-hidden flex flex-col justify-center">
+              <QuestionPanel
+                question={currentQuestion}
+                room={room}
+                myId={playerId}
+                questionRound={questionRound}
+                mathInputMode={room.mathInputMode}
+                locked={isQuickLocked || Boolean(room.quickRoundWinner)}
+                lockedMessage={
+                  isQuickLocked && !room.quickRoundWinner ? t.lockedThisRound : undefined
+                }
+              />
+            </div>
+          </>
+        )}
       </motion.main>
 
       {/* Pause Overlay */}

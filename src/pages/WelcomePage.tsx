@@ -1,12 +1,13 @@
-import { ArrowRight, KeyRound, PlusCircle, Swords } from 'lucide-react';
+import { ArrowRight, Award, Gift, KeyRound, PlusCircle, Swords, Trophy } from 'lucide-react';
 import { motion } from 'motion/react';
 import { TRANSLATIONS } from '../i18n/translations';
+import { getLevelFromXp } from '../shared/gifts';
 import { SUBJECTS } from '../shared/types';
 import { soundEngine } from '../sounds/soundEngine';
 import { useGameStore } from '../store/useGameStore';
 
 export function WelcomePage() {
-  const { language, setFlowIntent, setScreen } = useGameStore();
+  const { language, authProfile, setFlowIntent, setScreen } = useGameStore();
   const t = TRANSLATIONS[language];
 
   const handleStart = (intent: 'create' | 'join') => {
@@ -15,13 +16,61 @@ export function WelcomePage() {
     setScreen('profile');
   };
 
+  const lv = getLevelFromXp(authProfile?.xp ?? 0);
+
   return (
     <motion.main
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25 }}
-      className="mx-auto max-w-6xl px-3.5 sm:px-6 py-4 sm:py-16"
+      className="mx-auto max-w-6xl px-3.5 sm:px-6 py-4 sm:py-12"
     >
+      {/* Quick Player Stats Strip */}
+      {authProfile && (
+        <div className="mb-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 px-4 py-3 flex flex-wrap items-center justify-between gap-3 shadow-xs">
+          <div className="flex items-center gap-3 min-w-0">
+            <span className="text-2xl">{authProfile.avatar}</span>
+            <div className="min-w-0">
+              <p className="font-display text-sm sm:text-base font-extrabold text-slate-900 dark:text-white truncate">
+                {t.statsGreeting}, {authProfile.fullName}!
+              </p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 tabular-nums">
+                Lv.{lv.level} · {authProfile.xp} XP · {SUBJECTS.find((s) => s.id === authProfile.favoriteSubject)?.emoji}{' '}
+                {t.subjects[authProfile.favoriteSubject].name}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={() => {
+                soundEngine.click();
+                setScreen('dashboard');
+              }}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-1.5 text-xs font-bold text-slate-800 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer whitespace-nowrap"
+            >
+              <Gift className="h-3.5 w-3.5 text-amber-500" />
+              <span>
+                {t.navProfile} ({authProfile.gifts.length})
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                soundEngine.click();
+                setScreen('leaderboard');
+              }}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/40 px-3 py-1.5 text-xs font-bold text-blue-700 dark:text-blue-300 hover:brightness-95 cursor-pointer whitespace-nowrap"
+            >
+              <Trophy className="h-3.5 w-3.5" />
+              <span>{t.navRankings}</span>
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Hero Section */}
       <section className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-10 items-center">
         <div className="lg:col-span-7 space-y-3.5 sm:space-y-6 min-w-0">
@@ -111,9 +160,22 @@ export function WelcomePage() {
 
       {/* How It Works */}
       <section className="mt-8 sm:mt-14 pt-6 sm:pt-10 border-t border-slate-200/80 dark:border-slate-800/80">
-        <h2 className="font-display text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-4 sm:mb-6">
-          {t.howItWorksTitle}
-        </h2>
+        <div className="flex items-center justify-between gap-2 mb-4 sm:mb-6">
+          <h2 className="font-display text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
+            {t.howItWorksTitle}
+          </h2>
+          <button
+            type="button"
+            onClick={() => {
+              soundEngine.click();
+              setScreen('dashboard');
+            }}
+            className="inline-flex items-center gap-1 text-xs sm:text-sm font-bold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer"
+          >
+            <Award className="h-4 w-4" />
+            <span>{t.achievementsTitle}</span>
+          </button>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 sm:gap-5">
           {[
             { title: t.step1Title, desc: t.step1Desc },

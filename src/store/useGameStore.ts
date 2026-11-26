@@ -1,26 +1,35 @@
 import { create } from 'zustand';
+import { getLevelFromXp } from '../shared/gifts';
 import { soundEngine } from '../sounds/soundEngine';
 import {
   AnswerResultPayload,
   AVATARS,
+  IncomingGameInvite,
   Language,
+  LeaderboardEntry,
   PublicQuestion,
   PublicRoomState,
   ServerQuestion,
   SubjectId,
+  UserAuthProfile,
 } from '../shared/types';
 
 export type ScreenId =
+  | 'login'
   | 'welcome'
   | 'profile'
   | 'create_room'
   | 'join_room'
   | 'lobby'
   | 'game'
-  | 'results';
+  | 'results'
+  | 'dashboard'
+  | 'leaderboard';
 
 export type FlowIntent = 'create' | 'join';
 export type ThemeMode = 'light' | 'dark';
+
+const AUTH_STORAGE_KEY = 'bilimjang_auth_v1';
 
 function getInitialLanguage(): Language {
   if (typeof window === 'undefined') return 'uz';
@@ -44,19 +53,47 @@ function getInitialSound(): boolean {
   return val;
 }
 
-function getTabPlayerToken(): string {
+function getPersistentPlayerToken(): string {
   if (typeof window === 'undefined') return 'server_token';
-  const existing = window.sessionStorage.getItem('bilimjang_tab_token');
-  if (existing) return existing;
-  const generated = `tok_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
-  window.sessionStorage.setItem('bilimjang_tab_token', generated);
-  return generated;
+  const existingLocal = window.localStorage.getItem('bilimjang_user_token');
+  if (existingLocal) return existingLocal;
+  const existingSession = window.sessionStorage.getItem('bilimjang_tab_token');
+  const token = existingSession || `usr_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+  window.localStorage.setItem('bilimjang_user_token', token);
+  window.sessionStorage.setItem('bilimjang_tab_token', token);
+  return token;
+}
+
+function loadAuthProfile(): UserAuthProfile | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = window.localStorage.getItem(AUTH_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as UserAuthProfile;
+    if (parsed && parsed.firstName && parsed.lastName) {
+      return parsed;
+    }
+  } catch {
+    // Ignore invalid stored JSON
+  }
+  return null;
+}
+
+function saveAuthProfile(profile: UserAuthProfile | null): void {
+  if (typeof window === 'undefined') return;
+  if (!profile) {
+    window.localStorage.removeItem(AUTH_STORAGE_KEY);
+    return;
+  }
+  window.localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(profile));
 }
 
 function getSavedRoomSession(): { code: string; token: string } | null {
   if (typeof window === 'undefined') return null;
   const code = window.sessionStorage.getItem('bilimjang_room_code');
-  const token = window.sessionStorage.getItem('bilimjang_tab_token');
+  const token =
+    window.localStorage.getItem('bilimjang_user_token') ||
+    window.sessionStorage.getItem('bilimjang_tab_token');
   if (code && token) return { code, token };
   return null;
 }
@@ -76,6 +113,7 @@ interface GameStoreState {
   flowIntent: FlowIntent;
   prefilledCode: string;
 
+  authProfile: UserAuthProfile | null;
   playerName: string;
   playerAvatar: string;
   selectedSubject: SubjectId;
@@ -87,6 +125,11 @@ interface GameStoreState {
   questionRound: number;
   lastAnswerResult: AnswerResultPayload | null;
   customQuestions: ServerQuestion[];
+  recordedMatchIds: string[];
+
+  leaderboard: LeaderboardEntry[];
+  incomingInvite: IncomingGameInvite | null;
+  outgoingInviteInfo: { roomCode: string; targetName: string; delivered: boolean } | null;
 
   errorMessageKey: string | null;
   noticeBanner: string | null;
@@ -98,14 +141,22 @@ interface GameStoreState {
   setScreen: (screen: ScreenId) => void;
   setFlowIntent: (intent: FlowIntent) => void;
   setPrefilledCode: (code: string) => void;
+  loginWithNames: (firstName: string, lastName: string) => UserAuthProfile;
+  logoutProfile: () => void;
   setPlayerProfile: (name: string, avatar: string, subject: SubjectId) => void;
   setSelectedSubject: (subject: SubjectId) => void;
+  setAvatar: (avatar: string) => void;
   setRoomSession: (room: PublicRoomState, playerId: string) => void;
   updateRoom: (room: PublicRoomState) => void;
   setTimeLeft: (timeLeft: number) => void;
   setQuestion: (question: PublicQuestion, round: number) => void;
   setAnswerResult: (result: AnswerResultPayload | null) => void;
   setCustomQuestions: (list: ServerQuestion[]) => void;
+  setLeaderboard: (entries: LeaderboardEntry[]) => void;
+  setIncomingInvite: (invite: IncomingGameInvite | null) => void;
+  setOutgoingInviteInfo: (
+    info: { roomCode: string; targetName: string; delivered: boolean } | null
+  ) => void;
   setError: (key: string | null) => void;
   setNotice: (msg: string | null) => void;
   clearRoomSession: () => void;
@@ -114,30 +165,35 @@ interface GameStoreState {
 
 const initialTheme = getInitialTheme();
 applyThemeToDocument(initialTheme);
+const initialAuth = loadAuthProfile();
+const persistentToken = getPersistentPlayerToken();
 
-export const useGameStore = create<GameStoreState>((set) => ({
+export const useGameStore = create<GameStoreState>((set, get) => ({
   language: getInitialLanguage(),
   theme: initialTheme,
   soundEnabled: getInitialSound(),
   connected: false,
   reconnecting: false,
-  screen: 'welcome',
+  screen: initialAuth ? 'welcome' : 'login',
   flowIntent: 'create',
   prefilledCode: '',
 
+  authProfile: initialAuth,
   playerName:
-    typeof window !== 'undefined'
-      ? window.sessionStorage.getItem('bilimjang_name') ?? ''
-      : '',
+    initialAuth?.fullName ??
+    (typeof window !== 'undefined' ? window.sessionStorage.getItem('bilimjang_name') ?? '' : ''),
   playerAvatar:
-    typeof window !== 'undefined'
-      ? window.sessionStorage.getItem('bilimjang_avatar') ?? AVATARS[0]
-      : AVATARS[0],
-  selectedSubject:
+    initialAuth?.avatar ??
     (typeof window !== 'undefined'
+      ? window.sessionStorage.getItem('bilimjang_avatar') ?? AVATARS[0]
+      : AVATARS[0]),
+  selectedSubject:
+    initialAuth?.favoriteSubject ??
+    ((typeof window !== 'undefined'
       ? (window.sessionStorage.getItem('bilimjang_subject') as SubjectId | null)
-      : null) ?? 'math',
-  playerToken: getTabPlayerToken(),
+      : null) ??
+      'math'),
+  playerToken: persistentToken,
   playerId: null,
 
   room: null,
@@ -145,6 +201,11 @@ export const useGameStore = create<GameStoreState>((set) => ({
   questionRound: 1,
   lastAnswerResult: null,
   customQuestions: [],
+  recordedMatchIds: [],
+
+  leaderboard: [],
+  incomingInvite: null,
+  outgoingInviteInfo: null,
 
   errorMessageKey: null,
   noticeBanner: null,
@@ -185,20 +246,111 @@ export const useGameStore = create<GameStoreState>((set) => ({
 
   setPrefilledCode: (prefilledCode) => set({ prefilledCode }),
 
+  loginWithNames: (firstName, lastName) => {
+    const cleanFirst = firstName.trim().slice(0, 18);
+    const cleanLast = lastName.trim().slice(0, 18);
+    const fullName = `${cleanFirst} ${cleanLast}`.trim();
+    const state = get();
+    const existing = state.authProfile;
+
+    const nextProfile: UserAuthProfile =
+      existing && existing.firstName === cleanFirst && existing.lastName === cleanLast
+        ? existing
+        : {
+            token: state.playerToken,
+            firstName: cleanFirst,
+            lastName: cleanLast,
+            fullName,
+            avatar: state.playerAvatar || AVATARS[0],
+            favoriteSubject: state.selectedSubject || 'math',
+            xp: 0,
+            matchesPlayed: 0,
+            wins: 0,
+            totalCorrect: 0,
+            totalWrong: 0,
+            totalMinutesPlayed: 0,
+            gifts: [],
+          };
+
+    saveAuthProfile(nextProfile);
+    if (typeof window !== 'undefined') {
+      window.sessionStorage.setItem('bilimjang_name', fullName);
+    }
+
+    const nextScreen: ScreenId = state.prefilledCode ? 'join_room' : 'welcome';
+    set({
+      authProfile: nextProfile,
+      playerName: fullName,
+      playerAvatar: nextProfile.avatar,
+      selectedSubject: nextProfile.favoriteSubject,
+      screen: nextScreen,
+      errorMessageKey: null,
+    });
+    return nextProfile;
+  },
+
+  logoutProfile: () => {
+    saveAuthProfile(null);
+    if (typeof window !== 'undefined') {
+      window.sessionStorage.removeItem('bilimjang_room_code');
+      window.sessionStorage.removeItem('bilimjang_name');
+    }
+    set({
+      authProfile: null,
+      playerName: '',
+      room: null,
+      playerId: null,
+      currentQuestion: null,
+      lastAnswerResult: null,
+      screen: 'login',
+      errorMessageKey: null,
+    });
+  },
+
   setPlayerProfile: (playerName, playerAvatar, selectedSubject) => {
+    const state = get();
     if (typeof window !== 'undefined') {
       window.sessionStorage.setItem('bilimjang_name', playerName);
       window.sessionStorage.setItem('bilimjang_avatar', playerAvatar);
       window.sessionStorage.setItem('bilimjang_subject', selectedSubject);
     }
-    set({ playerName, playerAvatar, selectedSubject });
+    let updatedAuth = state.authProfile;
+    if (updatedAuth) {
+      updatedAuth = {
+        ...updatedAuth,
+        fullName: playerName,
+        avatar: playerAvatar,
+        favoriteSubject: selectedSubject,
+      };
+      saveAuthProfile(updatedAuth);
+    }
+    set({ playerName, playerAvatar, selectedSubject, authProfile: updatedAuth });
   },
 
   setSelectedSubject: (selectedSubject) => {
+    const state = get();
     if (typeof window !== 'undefined') {
       window.sessionStorage.setItem('bilimjang_subject', selectedSubject);
     }
-    set({ selectedSubject });
+    let updatedAuth = state.authProfile;
+    if (updatedAuth) {
+      updatedAuth = { ...updatedAuth, favoriteSubject: selectedSubject };
+      saveAuthProfile(updatedAuth);
+    }
+    set({ selectedSubject, authProfile: updatedAuth });
+  },
+
+  setAvatar: (playerAvatar) => {
+    const state = get();
+    if (typeof window !== 'undefined') {
+      window.sessionStorage.setItem('bilimjang_avatar', playerAvatar);
+    }
+    let updatedAuth = state.authProfile;
+    if (updatedAuth) {
+      updatedAuth = { ...updatedAuth, avatar: playerAvatar };
+      saveAuthProfile(updatedAuth);
+    }
+    set({ playerAvatar, authProfile: updatedAuth });
   },
 
   setRoomSession: (room, playerId) => {
@@ -234,10 +386,47 @@ export const useGameStore = create<GameStoreState>((set) => ({
       } else if (room.status === 'finished') {
         nextScreen = 'results';
       }
+
+      let updatedAuth = state.authProfile;
+      let recordedMatchIds = state.recordedMatchIds;
+
+      if (
+        room.status === 'finished' &&
+        room.matchId &&
+        !state.recordedMatchIds.includes(room.matchId) &&
+        updatedAuth
+      ) {
+        const me = room.players.find((p) => p.id === state.playerId);
+        if (me) {
+          const isWinner = room.winner !== 'draw' && me.side === room.winner;
+          const xpGain = me.earnedXp ?? 15 + me.correctCount * 10;
+          const nextGifts =
+            isWinner && me.earnedGift
+              ? [me.earnedGift, ...updatedAuth.gifts]
+              : updatedAuth.gifts;
+
+          updatedAuth = {
+            ...updatedAuth,
+            favoriteSubject: room.subject,
+            xp: updatedAuth.xp + xpGain,
+            matchesPlayed: updatedAuth.matchesPlayed + 1,
+            wins: updatedAuth.wins + (isWinner ? 1 : 0),
+            totalCorrect: updatedAuth.totalCorrect + me.correctCount,
+            totalWrong: updatedAuth.totalWrong + me.wrongCount,
+            totalMinutesPlayed: updatedAuth.totalMinutesPlayed + room.durationMinutes,
+            gifts: nextGifts,
+          };
+          saveAuthProfile(updatedAuth);
+          recordedMatchIds = [...state.recordedMatchIds, room.matchId];
+        }
+      }
+
       return {
         room,
         screen: nextScreen,
         selectedSubject: room.subject,
+        authProfile: updatedAuth,
+        recordedMatchIds,
       };
     }),
 
@@ -257,6 +446,12 @@ export const useGameStore = create<GameStoreState>((set) => ({
 
   setCustomQuestions: (customQuestions) => set({ customQuestions }),
 
+  setLeaderboard: (leaderboard) => set({ leaderboard }),
+
+  setIncomingInvite: (incomingInvite) => set({ incomingInvite }),
+
+  setOutgoingInviteInfo: (outgoingInviteInfo) => set({ outgoingInviteInfo }),
+
   setError: (errorMessageKey) => set({ errorMessageKey }),
 
   setNotice: (noticeBanner) => set({ noticeBanner }),
@@ -265,16 +460,21 @@ export const useGameStore = create<GameStoreState>((set) => ({
     if (typeof window !== 'undefined') {
       window.sessionStorage.removeItem('bilimjang_room_code');
     }
+    const auth = get().authProfile;
     set({
       room: null,
       playerId: null,
       currentQuestion: null,
       lastAnswerResult: null,
       customQuestions: [],
-      screen: 'welcome',
+      screen: auth ? 'welcome' : 'login',
       errorMessageKey: null,
     });
   },
 
   getSavedSession: getSavedRoomSession,
 }));
+
+export function getAuthLevelInfo(profile: UserAuthProfile | null) {
+  return getLevelFromXp(profile?.xp ?? 0);
+}

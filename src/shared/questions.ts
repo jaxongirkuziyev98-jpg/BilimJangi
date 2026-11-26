@@ -1,5 +1,15 @@
+import { buildMapHuntQuestions, buildTrueFalseQuestions, buildZoomGuessQuestions } from './minigameQuestions';
 import { getLocalizedBankEntry } from './questions_ru_en';
-import { Difficulty, Language, LocalizedQuestionContent, PublicQuestion, ServerQuestion, SubjectId } from './types';
+import {
+  Difficulty,
+  GameType,
+  Language,
+  LocalizedQuestionContent,
+  PublicQuestion,
+  QuestionVisualId,
+  ServerQuestion,
+  SubjectId,
+} from './types';
 
 function randInt(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -210,6 +220,7 @@ const SUBJECT_BANKS: Record<Exclude<SubjectId, 'math'>, RawQ[]> = {
     ["Qaysi gaz 'kuldiruvchi gaz' deb ham ataladi?", ['N₂O', 'NO₂', 'NH₃', 'SO₂'], 0, 'hard'],
     ["Oshqozon shirasida ovqat hazm qilishda qaysi kislota qatnashadi?", ['Sirka kislota', 'Xlorid kislota (HCl)', 'Sulfat kislota', 'Limon kislota'], 1, 'hard'],
     ["Mis (Cu) qaysi rangdagi metall hisoblanadi?", ['Kumushrang-oq', 'Qizg‘ish-pushti', 'Zangori', 'Qora'], 1, 'medium'],
+    ["Ohak suvi orqali CO₂ gazi o'tkazilsa nima sodir bo'ladi?", ['U yanada tiniqlashadi', 'U muzlab qoladi', 'U loyqalanib oq rangga kiradi', 'U yorug‘lik chiqaradi'], 2, 'easy'],
   ],
   biology: [
     ["Tirik organizmlarning eng kichik tuzilish va funksional birligi nima?", ['To‘qima', 'Hujayra', 'Organ', 'Molekula'], 1, 'easy'],
@@ -345,6 +356,36 @@ const SUBJECT_BANKS: Record<Exclude<SubjectId, 'math'>, RawQ[]> = {
   ],
 };
 
+const QUESTION_VISUALS: Partial<Record<Exclude<SubjectId, 'math'>, Record<number, QuestionVisualId>>> = {
+  physics: {
+    4: 'newton_force',
+    7: 'ohm_circuit',
+    17: 'magnet_poles',
+  },
+  chemistry: {
+    0: 'water_molecule',
+    6: 'gold_ingot',
+    7: 'ph_scale',
+    11: 'atom_bohr',
+    20: 'limewater_co2',
+  },
+  biology: {
+    1: 'plant_cell',
+    3: 'human_heart',
+    4: 'dna_helix',
+  },
+  geography: {
+    7: 'earth_equator',
+    12: 'ozone_shield',
+    18: 'compass_wind',
+  },
+  informatics: {
+    2: 'binary_bits',
+    4: 'binary_bits',
+    13: 'binary_bits',
+  },
+};
+
 export function getSubjectQuestions(
   subject: SubjectId,
   difficulty: Difficulty,
@@ -359,7 +400,10 @@ export function getSubjectQuestions(
   }
 
   if (subject === 'math') {
-    return generateMathQuestions(difficulty, count);
+    const mathList = generateMathQuestions(difficulty, count);
+    return mathList.map((q, idx) =>
+      idx % 4 === 2 ? { ...q, visualId: 'triangle_math' } : q
+    );
   }
 
   const rawList = SUBJECT_BANKS[subject] ?? SUBJECT_BANKS.physics;
@@ -376,13 +420,46 @@ export function getSubjectQuestions(
       options: [...options] as [string, string, string, string],
       correctIndex,
       difficulty: qDiff,
+      visualId: QUESTION_VISUALS[subject]?.[index],
       localized: tr
         ? { uz: uzContent, ru: tr.ru, en: tr.en }
         : { uz: uzContent, ru: uzContent, en: uzContent },
     };
   });
 
-  // Prioritize questions matching selected difficulty while keeping all 20 available
+  // For Chemistry, bubble the CO2 limewater visual lab experiment up cleanly so students see pictured questions early!
+  if (subject === 'chemistry') {
+    const co2Idx = converted.findIndex((q) => q.visualId === 'limewater_co2');
+    if (co2Idx > 0) {
+      const [co2Q] = converted.splice(co2Idx, 1);
+      converted.unshift(co2Q);
+    }
+  }
+
+  // For Geography, weave interactive clickable-country map questions into standard battles too!
+  if (subject === 'geography') {
+    const mapQs = buildMapHuntQuestions(difficulty).slice(0, 6);
+    const merged: ServerQuestion[] = [];
+    const maxLen = Math.max(converted.length, mapQs.length);
+    for (let i = 0; i < maxLen; i++) {
+      if (i < converted.length) merged.push(converted[i]);
+      if (i % 3 === 1 && mapQs.length > 0) {
+        const m = mapQs.shift();
+        if (m) merged.push(m);
+      }
+    }
+    const matching = merged.filter((q) => q.difficulty === difficulty);
+    const rest = merged.filter((q) => q.difficulty !== difficulty);
+    const ordered = shuffle
+      ? [...shuffleArray(matching), ...shuffleArray(rest)]
+      : [...matching, ...rest];
+    if (customQuestions.length > 0) {
+      return [...customQuestions, ...ordered];
+    }
+    return ordered;
+  }
+
+  // Prioritize questions matching selected difficulty while keeping all available
   const matching = converted.filter((q) => q.difficulty === difficulty);
   const rest = converted.filter((q) => q.difficulty !== difficulty);
   const ordered = shuffle
@@ -397,7 +474,36 @@ export function getSubjectQuestions(
   return ordered;
 }
 
+export function getMatchQuestions(
+  gameType: GameType,
+  subject: SubjectId,
+  difficulty: Difficulty,
+  customQuestions: ServerQuestion[],
+  questionMode: 'auto' | 'custom',
+  shuffle: boolean,
+  count = 40
+): ServerQuestion[] {
+  if (gameType === 'map_hunt') {
+    return buildMapHuntQuestions(difficulty);
+  }
+  if (gameType === 'zoom_guess') {
+    return buildZoomGuessQuestions(difficulty);
+  }
+  if (gameType === 'true_false') {
+    return buildTrueFalseQuestions(difficulty);
+  }
+  return getSubjectQuestions(subject, difficulty, customQuestions, questionMode, shuffle, count);
+}
+
 export function toPublicQuestion(q: ServerQuestion): PublicQuestion {
+  const zoomWordLengths = q.zoomWord
+    ? {
+        uz: q.zoomWord.uz.length,
+        ru: q.zoomWord.ru.length,
+        en: q.zoomWord.en.length,
+      }
+    : undefined;
+
   return {
     id: q.id,
     subject: q.subject,
@@ -405,6 +511,13 @@ export function toPublicQuestion(q: ServerQuestion): PublicQuestion {
     options: q.options,
     difficulty: q.difficulty,
     supportsNumeric: q.subject === 'math' && typeof q.numericAnswer === 'number',
+    visualId: q.visualId,
+    isMapQuestion: Boolean(q.mapCountryId),
+    isZoomQuestion: Boolean(q.zoomWord),
+    isTrueFalse: Boolean(q.isTrueFalse),
+    zoomWordLengths,
+    scrambledLetters: q.scrambledLetters,
     localized: q.localized,
   };
 }
+

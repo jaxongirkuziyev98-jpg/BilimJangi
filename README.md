@@ -1,19 +1,20 @@
-# BilimJang
+<div align="center">
+<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
+</div>
 
-Real vaqtdagi 1v1 jamoaviy va individual ta'limiy bellashuv o'yini — 9 ta fan, 4 xil mini-o'yin.
+# Run and deploy your AI Studio app
 
-## Ishga tushirish
+This contains everything you need to run your app locally.
 
-```bash
-npm install
-npm run dev        # http://localhost:3000
-```
+View your app in AI Studio: https://ai.studio/apps/5993755f-8e31-44b8-aee4-faac1478b91d
 
-## Production
+## Run Locally
 
-```bash
-npm run build
-npm start
-```
+**Prerequisites:**  Node.js
 
-Node.js 20+ kerak. Sozlamalar uchun `.env.example` faylini `.env` ga nusxalang.
+
+1. Install dependencies:
+   `npm install`
+2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
+3. Run the app:
+   `npm run dev`

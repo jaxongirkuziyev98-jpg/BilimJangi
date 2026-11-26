@@ -154,6 +154,95 @@ export interface TranslationDict {
   close: string;
   savedQuestionsList: string;
   noCustomQuestionsYet: string;
+  // Login
+  loginTitle: string;
+  loginSubtitle: string;
+  firstNameLabel: string;
+  firstNamePlaceholder: string;
+  lastNameLabel: string;
+  lastNamePlaceholder: string;
+  loginSubmit: string;
+  loginError: string;
+  // Navigation & Profile Dashboard
+  navPlay: string;
+  navProfile: string;
+  navRankings: string;
+  logoutBtn: string;
+  statsGreeting: string;
+  statsSubtitle: string;
+  statMatches: string;
+  statQuestions: string;
+  statAccuracy: string;
+  statRank: string;
+  statGifts: string;
+  statXp: string;
+  levelsTitle: string;
+  levelLabel: string;
+  xpToNextLevel: string;
+  achievementsTitle: string;
+  unlockedLabel: string;
+  lockedLabel: string;
+  giftsVaultTitle: string;
+  noGiftsYet: string;
+  favoriteSubjectLabel: string;
+  // Leaderboard & Invites
+  leaderboardTitle: string;
+  leaderboardSubtitle: string;
+  rankCol: string;
+  subjectCol: string;
+  inviteBtn: string;
+  playVsBotBtn: string;
+  onlineLabel: string;
+  offlineLabel: string;
+  allSubjectsFilter: string;
+  searchPlayerPlaceholder: string;
+  rankSuffix: string;
+  inviteSentTitle: string;
+  inviteDeliveredDesc: string;
+  inviteOfflineDesc: string;
+  goToLobbyBtn: string;
+  incomingInviteTitle: string;
+  incomingInviteDesc: string;
+  acceptInviteBtn: string;
+  declineInviteBtn: string;
+  // Winner Gifts
+  winnerGiftTitle: string;
+  winnerGiftSubtitle: string;
+  xpEarnedLabel: string;
+  // AI Tutor
+  aiTutorTitle: string;
+  aiTutorSubtitle: string;
+  aiAnalyzing: string;
+  aiAnalyzeBtn: string;
+  aiRetryBtn: string;
+  aiModeWritten: string;
+  aiModeDraw: string;
+  aiModeVoice: string;
+  aiPlayVoice: string;
+  aiPauseVoice: string;
+  aiReplayDraw: string;
+  aiYourAnswerLabel: string;
+  aiCorrectAnswerLabel: string;
+  aiRuleTipLabel: string;
+  aiPerfectTitle: string;
+  aiPerfectDesc: string;
+  aiAskPlaceholder: string;
+  aiSendBtn: string;
+  aiRightCount: string;
+  aiWrongCount: string;
+  aiListenMistake: string;
+  // New mini-games labels
+  zoomGuessBanner: string;
+  zoomClearBtn: string;
+  zoomBackspaceBtn: string;
+  zoomSubmitBtn: string;
+  mapCorrectStat: string;
+  mapClickCountryHint: string;
+  mapZoomReset: string;
+  tfScoreLabel: string;
+  tfTimerLabel: string;
+  tfTrueBtn: string;
+  tfFalseBtn: string;
   subjects: Record<SubjectId, { name: string; desc: string }>;
   games: Record<GameType, { name: string; emoji: string; desc: string }>;
   subjectBattleName: (subjectName: string) => string;
@@ -167,10 +256,10 @@ export const TRANSLATIONS: Record<Language, TranslationDict> = {
     welcomeBadge: "1v1, Jamoaviy yoki Bot bilan bellashuv",
     heroTitle: "Bilimingni sinab ko'r — do'stlaring yoki bot bilan bellash!",
     heroSubtitle:
-      "Xona yaratib havolani Telegram yoki Instagram orqali ulash — 2 kishi yoki xohlagancha o'yinchi bilan 9 ta fanda 4 xil mini-o'yinda musobaqalash. Raqib topilmasa, BilimBot bilan bellash!",
+      "Xona yaratib havolani Telegram yoki Instagram orqali ulash — 2 kishi yoki xohlagancha o'yinchi bilan 9 ta fanda 7 xil mini-o'yinda musobaqalash. Raqib topilmasa, BilimBot bilan bellash!",
     createRoom: 'Xona yaratish',
     joinRoom: 'Xonaga kirish',
-    quickSummary: "Cheksiz o'yinchi · Bot rejimi · 9 ta fan · 4 xil mini-o'yin",
+    quickSummary: "Cheksiz o'yinchi · Bot rejimi · 9 ta fan · 7 xil mini-o'yin",
     howItWorksTitle: 'Qanday ishlaydi?',
     step1Title: '1. Profil va fan tanla',
     step1Desc: "Ism, avatar va o'zing xohlagan fanni belgilab bellashuvga tayyorlan.",
@@ -316,6 +405,89 @@ export const TRANSLATIONS: Record<Language, TranslationDict> = {
     close: 'Yopish',
     savedQuestionsList: "Qo'shilgan savollar ro'yxati",
     noCustomQuestionsYet: "Hozircha shaxsiy savol qo'shilmagan.",
+    loginTitle: 'BilimJang ga xush kelibsiz!',
+    loginSubtitle: "Kirish uchun faqat ism va familiyangizni kiriting.",
+    firstNameLabel: 'Ismingiz',
+    firstNamePlaceholder: 'Masalan: Jasur',
+    lastNameLabel: 'Familiyangiz',
+    lastNamePlaceholder: 'Masalan: Karimov',
+    loginSubmit: 'Kirish',
+    loginError: "Iltimos, ism va familiyangizni kamida 2 ta harfdan kiriting.",
+    navPlay: "O'yin",
+    navProfile: 'Profil',
+    navRankings: "O'rinlar",
+    logoutBtn: 'Chiqish',
+    statsGreeting: 'Salom',
+    statsSubtitle: "Yangi sovg'alar va darajalarni ochish uchun bellashuvlarda qatnashing!",
+    statMatches: "O'yinlar",
+    statQuestions: 'Savollar',
+    statAccuracy: "O'rtacha aniqlik",
+    statRank: "O'rin",
+    statGifts: "Sovg'alar",
+    statXp: 'Tajriba (XP)',
+    levelsTitle: 'Darajalar (Levels)',
+    levelLabel: 'DARAJA',
+    xpToNextLevel: 'keyingi darajagacha XP',
+    achievementsTitle: "Yutuqlar va Sovg'alar",
+    unlockedLabel: 'Ochilgan',
+    lockedLabel: 'Yopiq',
+    giftsVaultTitle: "Yutgan sovg'alaringiz",
+    noGiftsYet: "Hali sovg'a yutilmagan. G'alaba qozoning va ilk sovg'ani oling!",
+    favoriteSubjectLabel: 'Asosiy fan',
+    leaderboardTitle: "O'yinchilar reytingi (O'rinlar)",
+    leaderboardSubtitle: "Kim nechanchi o'rinda va qaysi fanda bellashayotganini ko'ring hamda o'yinga taklif qiling.",
+    rankCol: "O'rin",
+    subjectCol: 'Fan',
+    inviteBtn: "O'yinga taklif qilish",
+    playVsBotBtn: 'Bot bilan bellashish',
+    onlineLabel: 'Onlayn',
+    offlineLabel: 'Oflayn',
+    allSubjectsFilter: 'Barcha fanlar',
+    searchPlayerPlaceholder: "Ism bo'yicha qidirish...",
+    rankSuffix: "-o'rin",
+    inviteSentTitle: 'Taklif yuborildi!',
+    inviteDeliveredDesc: "o'yinchiga real vaqtda bellashuv taklifi yuborildi. Kutish zalida kuting!",
+    inviteOfflineDesc: "Hozir oflayn, lekin xona ochildi! Havola va kodni ulashing:",
+    goToLobbyBtn: "Kutish zaliga o'tish",
+    incomingInviteTitle: "Sizni o'yinga taklif qilishdi!",
+    incomingInviteDesc: "sizni bellashuvga chaqirmoqda",
+    acceptInviteBtn: "Qabul qilish va kirish",
+    declineInviteBtn: 'Keyinroq',
+    winnerGiftTitle: "G'olib Sovg'asi!",
+    winnerGiftSubtitle: "Tabriklaymiz! Profil kolleksiyangizga yangi sovg'a qo'shildi.",
+    xpEarnedLabel: "Qo'shilgan tajriba",
+    aiTutorTitle: 'AI Ustoz — Xatolar Tahlili',
+    aiTutorSubtitle: "Nechta to'g'ri va nechta xato qilganingizni ko'ring — AI chizib, gapirib va yozib tushuntiradi.",
+    aiAnalyzing: 'AI xatolaringizni tahlil qilmoqda va chizma tayyorlamoqda...',
+    aiAnalyzeBtn: 'AI bilan tahlil qilish',
+    aiRetryBtn: 'Qayta urinish',
+    aiModeWritten: 'Yozib tushuntirish',
+    aiModeDraw: 'Chizib tushuntirish',
+    aiModeVoice: 'Gapirib tushuntirish',
+    aiPlayVoice: 'Ovozli eshitish',
+    aiPauseVoice: "To'xtatish",
+    aiReplayDraw: 'Qayta chizish',
+    aiYourAnswerLabel: 'Sizning javobingiz',
+    aiCorrectAnswerLabel: "To'g'ri javob",
+    aiRuleTipLabel: 'Eslab qolish qoidasi',
+    aiPerfectTitle: "Ajoyib! 100% to'g'ri natija!",
+    aiPerfectDesc: "Siz bu o'yinda birorta ham xato qilmadingiz. Quyida AI xulosasini eshiting yoki savol bering.",
+    aiAskPlaceholder: "AI ustozga qo'shimcha savol yozing...",
+    aiSendBtn: 'Yuborish',
+    aiRightCount: "To'g'ri javoblar",
+    aiWrongCount: 'Xato javoblar',
+    aiListenMistake: 'Eshitish',
+    zoomGuessBanner: 'BU NIMA?',
+    zoomClearBtn: 'Tozalash',
+    zoomBackspaceBtn: "O'chirish",
+    zoomSubmitBtn: 'Tekshirish',
+    mapCorrectStat: "To'g'ri",
+    mapClickCountryHint: "Xaritadan aynan o'sha davlat ustiga bosing!",
+    mapZoomReset: 'Qayta',
+    tfScoreLabel: 'BALL',
+    tfTimerLabel: 'VAQT',
+    tfTrueBtn: "TO'G'RI",
+    tfFalseBtn: 'XATO',
     subjects: {
       math: { name: 'Matematika', desc: 'Avtomatik misollar va tenglamalar' },
       physics: { name: 'Fizika', desc: 'Qonunlar, kuch va energiya' },
@@ -348,6 +520,21 @@ export const TRANSLATIONS: Record<Language, TranslationDict> = {
         emoji: '⚡',
         desc: 'Hammaga bir xil savol: kim birinchi topsa, ball uniki!',
       },
+      map_hunt: {
+        name: 'Xaritadan top',
+        emoji: '🗺️',
+        desc: 'Dunyo xaritasida aynan berilgan davlatni bosib toping!',
+      },
+      zoom_guess: {
+        name: 'Bu nima? (Lupa)',
+        emoji: '🔍',
+        desc: 'Yaqinlashtirilgan rasmga qarab harflardan so‘zni yig‘ing.',
+      },
+      true_false: {
+        name: "To'g'ri / Xato",
+        emoji: '✅',
+        desc: '3 ta yurakcha va tezkor taymer bilan haqiqat yoki yolg‘onni toping.',
+      },
     },
     subjectBattleName: (subjectName) => `${subjectName} jangi`,
     buildInviteText: (code, subjectName, url) =>
@@ -359,10 +546,10 @@ export const TRANSLATIONS: Record<Language, TranslationDict> = {
     welcomeBadge: '1v1, команды или дуэль с ботом',
     heroTitle: 'Проверь знания — сразись с друзьями или с ботом!',
     heroSubtitle:
-      'Создай комнату, отправь ссылку в Telegram или Instagram и соревнуйся в 4 мини-играх. Нет соперника рядом? Вызови на дуэль БилимБота!',
+      'Создай комнату, отправь ссылку в Telegram или Instagram и соревнуйся в 7 мини-играх. Нет соперника рядом? Вызови на дуэль БилимБота!',
     createRoom: 'Создать комнату',
     joinRoom: 'Войти в комнату',
-    quickSummary: 'Сколько угодно игроков · Режим с ботом · 9 предметов · 4 игры',
+    quickSummary: 'Сколько угодно игроков · Режим с ботом · 9 предметов · 7 игр',
     howItWorksTitle: 'Как это работает?',
     step1Title: '1. Выбери профиль и предмет',
     step1Desc: 'Укажи имя, аватар и обязательный предмет для поединка.',
@@ -508,6 +695,89 @@ export const TRANSLATIONS: Record<Language, TranslationDict> = {
     close: 'Закрыть',
     savedQuestionsList: 'Добавленные вопросы',
     noCustomQuestionsYet: 'Своих вопросов пока нет.',
+    loginTitle: 'Добро пожаловать в БитвуЗнаний!',
+    loginSubtitle: 'Для входа укажите только имя и фамилию.',
+    firstNameLabel: 'Имя',
+    firstNamePlaceholder: 'Например: Тимур',
+    lastNameLabel: 'Фамилия',
+    lastNamePlaceholder: 'Например: Алимов',
+    loginSubmit: 'Войти',
+    loginError: 'Введите имя и фамилию (минимум по 2 буквы).',
+    navPlay: 'Игра',
+    navProfile: 'Профиль',
+    navRankings: 'Рейтинг',
+    logoutBtn: 'Выйти',
+    statsGreeting: 'Привет',
+    statsSubtitle: 'Участвуйте в битвах, чтобы открывать новые подарки и уровни!',
+    statMatches: 'Матчи',
+    statQuestions: 'Вопросы',
+    statAccuracy: 'Точность',
+    statRank: 'Место',
+    statGifts: 'Подарки',
+    statXp: 'Опыт (XP)',
+    levelsTitle: 'Уровни (Levels)',
+    levelLabel: 'УРОВЕНЬ',
+    xpToNextLevel: 'XP до след. уровня',
+    achievementsTitle: 'Достижения и Подарки',
+    unlockedLabel: 'Открыто',
+    lockedLabel: 'Закрыто',
+    giftsVaultTitle: 'Полученные подарки',
+    noGiftsYet: 'Подарков пока нет. Победите в игре, чтобы забрать первый приз!',
+    favoriteSubjectLabel: 'Основной предмет',
+    leaderboardTitle: 'Рейтинг игроков (Места)',
+    leaderboardSubtitle: 'Смотрите, кто на каком месте, по какому предмету играет, и приглашайте в игру.',
+    rankCol: 'Место',
+    subjectCol: 'Предмет',
+    inviteBtn: 'Пригласить в игру',
+    playVsBotBtn: 'Сыграть с ботом',
+    onlineLabel: 'Онлайн',
+    offlineLabel: 'Офлайн',
+    allSubjectsFilter: 'Все предметы',
+    searchPlayerPlaceholder: 'Поиск по имени...',
+    rankSuffix: '-е место',
+    inviteSentTitle: 'Приглашение отправлено!',
+    inviteDeliveredDesc: 'получил приглашение в реальном времени. Ждите в зале!',
+    inviteOfflineDesc: 'Игрок офлайн, но комната создана! Поделитесь кодом и ссылкой:',
+    goToLobbyBtn: 'Перейти в лобби',
+    incomingInviteTitle: 'Вас приглашают в игру!',
+    incomingInviteDesc: 'вызывает вас на поединок',
+    acceptInviteBtn: 'Принять и войти',
+    declineInviteBtn: 'Позже',
+    winnerGiftTitle: 'Подарок победителю!',
+    winnerGiftSubtitle: 'Поздравляем! В вашу коллекцию добавлен новый приз.',
+    xpEarnedLabel: 'Получено опыта',
+    aiTutorTitle: 'AI Наставник — Разбор ошибок',
+    aiTutorSubtitle: 'Количество верных и неверных ответов — AI нарисует, озвучит и напишет разбор.',
+    aiAnalyzing: 'AI анализирует ваши ответы и готовит чертёж...',
+    aiAnalyzeBtn: 'Разобрать с AI',
+    aiRetryBtn: 'Повторить',
+    aiModeWritten: 'Письменно',
+    aiModeDraw: 'Рисунок / Схема',
+    aiModeVoice: 'Голосом',
+    aiPlayVoice: 'Прослушать',
+    aiPauseVoice: 'Пауза',
+    aiReplayDraw: 'Перерисовать',
+    aiYourAnswerLabel: 'Ваш ответ',
+    aiCorrectAnswerLabel: 'Правильный ответ',
+    aiRuleTipLabel: 'Правило для запоминания',
+    aiPerfectTitle: 'Блестяще! 100% верных ответов!',
+    aiPerfectDesc: 'В этом матче вы не допустили ни одной ошибки. Послушайте вывод AI или задайте вопрос.',
+    aiAskPlaceholder: 'Задайте уточняющий вопрос AI наставнику...',
+    aiSendBtn: 'Отправить',
+    aiRightCount: 'Верно',
+    aiWrongCount: 'Ошибки',
+    aiListenMistake: 'Озвучить',
+    zoomGuessBanner: 'ЧТО ЭТО?',
+    zoomClearBtn: 'Очистить',
+    zoomBackspaceBtn: 'Стереть',
+    zoomSubmitBtn: 'Проверить',
+    mapCorrectStat: 'Верно',
+    mapClickCountryHint: 'Нажмите на нужную страну прямо на карте!',
+    mapZoomReset: 'Сброс',
+    tfScoreLabel: 'СЧЁТ',
+    tfTimerLabel: 'ТАЙМЕР',
+    tfTrueBtn: 'ВЕРНО',
+    tfFalseBtn: 'НЕВЕРНО',
     subjects: {
       math: { name: 'Математика', desc: 'Автогенерация примеров и уравнений' },
       physics: { name: 'Физика', desc: 'Законы, сила и энергия' },
@@ -540,6 +810,21 @@ export const TRANSLATIONS: Record<Language, TranslationDict> = {
         emoji: '⚡',
         desc: 'Один вопрос всем игрокам: кто быстрее, тот приносит очки!',
       },
+      map_hunt: {
+        name: 'Найди страну на карте',
+        emoji: '🗺️',
+        desc: 'Отметьте загаданную страну прямо на карте мира!',
+      },
+      zoom_guess: {
+        name: 'Что это? (Лупа)',
+        emoji: '🔍',
+        desc: 'Угадайте объект под увеличительным стеклом по буквам.',
+      },
+      true_false: {
+        name: 'Верно / Неверно',
+        emoji: '✅',
+        desc: 'Блиц-факты с 3 сердцами и быстрым таймером.',
+      },
     },
     subjectBattleName: (subjectName) => `Битва: ${subjectName}`,
     buildInviteText: (code, subjectName, url) =>
@@ -551,10 +836,10 @@ export const TRANSLATIONS: Record<Language, TranslationDict> = {
     welcomeBadge: '1v1, Group Teams, or Battle vs Bot',
     heroTitle: 'Test your knowledge — compete with friends or BrainBot!',
     heroSubtitle:
-      'Create a room, share the invite link on Telegram or Instagram, and compete with any number of players across 9 subjects and 4 mini-games. No rival around? Challenge BrainBot!',
+      'Create a room, share the invite link on Telegram or Instagram, and compete with any number of players across 9 subjects and 7 mini-games. No rival around? Challenge BrainBot!',
     createRoom: 'Create Room',
     joinRoom: 'Join Room',
-    quickSummary: 'Unlimited players · Bot mode · 9 subjects · 4 mini-games',
+    quickSummary: 'Unlimited players · Bot mode · 9 subjects · 7 mini-games',
     howItWorksTitle: 'How it works',
     step1Title: '1. Pick profile & subject',
     step1Desc: 'Set your name, avatar, and required academic subject.',
@@ -700,6 +985,89 @@ export const TRANSLATIONS: Record<Language, TranslationDict> = {
     close: 'Close',
     savedQuestionsList: 'Saved Questions',
     noCustomQuestionsYet: 'No custom questions added yet.',
+    loginTitle: 'Welcome to BrainBattle!',
+    loginSubtitle: 'Enter only your first and last name to get started.',
+    firstNameLabel: 'First Name',
+    firstNamePlaceholder: 'e.g. Alex',
+    lastNameLabel: 'Last Name',
+    lastNamePlaceholder: 'e.g. Morgan',
+    loginSubmit: 'Enter Arena',
+    loginError: 'Please enter at least 2 characters for both first and last name.',
+    navPlay: 'Play',
+    navProfile: 'Profile',
+    navRankings: 'Rankings',
+    logoutBtn: 'Sign Out',
+    statsGreeting: 'Hi',
+    statsSubtitle: 'Complete matches to unlock new winner gifts, XP levels, and achievements!',
+    statMatches: 'Matches',
+    statQuestions: 'Questions',
+    statAccuracy: 'Avg. Accuracy',
+    statRank: 'Rank',
+    statGifts: 'Total Gifts',
+    statXp: 'Total XP',
+    levelsTitle: 'Levels',
+    levelLabel: 'LEVEL',
+    xpToNextLevel: 'XP to reach next level',
+    achievementsTitle: 'Achievements & Gifts',
+    unlockedLabel: 'Unlocked',
+    lockedLabel: 'Locked',
+    giftsVaultTitle: 'Unlocked Winner Gifts',
+    noGiftsYet: 'No gifts unlocked yet. Win a match to claim your first reward!',
+    favoriteSubjectLabel: 'Primary Subject',
+    leaderboardTitle: 'Player Rankings',
+    leaderboardSubtitle: 'See who holds each rank, their active subject, and invite them to a live match.',
+    rankCol: 'Rank',
+    subjectCol: 'Subject',
+    inviteBtn: 'Invite to Game',
+    playVsBotBtn: 'Play vs Bot',
+    onlineLabel: 'Online',
+    offlineLabel: 'Offline',
+    allSubjectsFilter: 'All Subjects',
+    searchPlayerPlaceholder: 'Search by name...',
+    rankSuffix: '',
+    inviteSentTitle: 'Game Invite Sent!',
+    inviteDeliveredDesc: 'received a live match invitation. Meet them in the lobby!',
+    inviteOfflineDesc: 'is currently offline, but your room is ready! Share this code or link:',
+    goToLobbyBtn: 'Go to Lobby',
+    incomingInviteTitle: 'Match Challenge Received!',
+    incomingInviteDesc: 'invites you to a live match',
+    acceptInviteBtn: 'Accept & Join',
+    declineInviteBtn: 'Later',
+    winnerGiftTitle: 'Winner Gift Unlocked!',
+    winnerGiftSubtitle: 'Congratulations! A new reward has been added to your profile.',
+    xpEarnedLabel: 'XP Earned',
+    aiTutorTitle: 'AI Tutor — Mistake Breakdown',
+    aiTutorSubtitle: 'Review your right and wrong answers — AI explains them in text, diagrams, and voice.',
+    aiAnalyzing: 'AI is analyzing your mistakes and sketching visual explanations...',
+    aiAnalyzeBtn: 'Analyze with AI',
+    aiRetryBtn: 'Retry',
+    aiModeWritten: 'Written Guide',
+    aiModeDraw: 'Visual Drawing',
+    aiModeVoice: 'Voice Audio',
+    aiPlayVoice: 'Listen',
+    aiPauseVoice: 'Pause',
+    aiReplayDraw: 'Replay Sketch',
+    aiYourAnswerLabel: 'Your answer',
+    aiCorrectAnswerLabel: 'Correct answer',
+    aiRuleTipLabel: 'Key rule to remember',
+    aiPerfectTitle: 'Outstanding! 100% Accuracy!',
+    aiPerfectDesc: 'Zero mistakes this match. Listen to the AI wrap-up or ask a follow-up question.',
+    aiAskPlaceholder: 'Ask the AI tutor a follow-up question...',
+    aiSendBtn: 'Send',
+    aiRightCount: 'Correct',
+    aiWrongCount: 'Wrong',
+    aiListenMistake: 'Speak',
+    zoomGuessBanner: 'WHAT IS THIS?',
+    zoomClearBtn: 'Clear',
+    zoomBackspaceBtn: 'Delete',
+    zoomSubmitBtn: 'Check',
+    mapCorrectStat: 'Correct',
+    mapClickCountryHint: 'Tap the exact country on the world map!',
+    mapZoomReset: 'Reset',
+    tfScoreLabel: 'SCORE',
+    tfTimerLabel: 'TIMER',
+    tfTrueBtn: 'TRUE',
+    tfFalseBtn: 'FALSE',
     subjects: {
       math: { name: 'Mathematics', desc: 'Auto-generated equations & drills' },
       physics: { name: 'Physics', desc: 'Laws, forces, and energy' },
@@ -731,6 +1099,21 @@ export const TRANSLATIONS: Record<Language, TranslationDict> = {
         name: 'Quick Answer',
         emoji: '⚡',
         desc: 'Same question for all: first right answer wins the round!',
+      },
+      map_hunt: {
+        name: 'World Map Hunt',
+        emoji: '🗺️',
+        desc: 'Pinpoint each requested country directly on the world map!',
+      },
+      zoom_guess: {
+        name: 'What Is This? (Zoom)',
+        emoji: '🔍',
+        desc: 'Inspect the magnified close-up clue and spell the answer.',
+      },
+      true_false: {
+        name: 'True or False',
+        emoji: '✅',
+        desc: 'Rapid-fire truth blitz with 3 hearts and countdown timer.',
       },
     },
     subjectBattleName: (subjectName) => `${subjectName} Battle`,
