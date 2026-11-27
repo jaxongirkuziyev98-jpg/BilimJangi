@@ -2,7 +2,7 @@ import { GoogleGenAI, Type } from '@google/genai';
 import { Request, Response } from 'express';
 import { Language } from '../shared/types';
 
-const TEXT_MODEL_CHAIN = ['gemini-4-hydrogen', 'gemini-3.1-flash-lite'] as const;
+const TEXT_MODEL_CHAIN = ['gemini-2.5-flash', 'gemini-2.0-flash'] as const;
 
 function getAiClient(): GoogleGenAI | null {
   const apiKey = process.env.GEMINI_API_KEY?.trim();
@@ -13,9 +13,6 @@ function getAiClient(): GoogleGenAI | null {
     apiKey,
     httpOptions: {
       apiVersion: 'v1beta',
-      headers: {
-        'User-Agent': 'aistudio-build',
-      },
     },
   });
 }
@@ -303,7 +300,7 @@ export async function handleAiSpeak(req: Request, res: Response): Promise<void> 
 
     const runTts = async (withVoiceConfig: boolean) => {
       return ai.models.generateContent({
-        model: 'gemini-3.8-flash-lite-tts',
+        model: 'gemini-2.5-flash-preview-tts',
         contents: [
           {
             role: 'user',

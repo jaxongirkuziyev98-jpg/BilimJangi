@@ -1,20 +1,24 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# BilimJang — 1v1 Ta'limiy Bellashuv
 
-# Run and deploy your AI Studio app
+Real vaqtdagi 1v1 ta'limiy bellashuv o'yini (Vite + React + Express + Socket.IO + Gemini AI).
 
-This contains everything you need to run your app locally.
+## Lokal ishga tushirish
 
-View your app in AI Studio: https://ai.studio/apps/5993755f-8e31-44b8-aee4-faac1478b91d
+1. Kutubxonalarni o'rnating:
+   ```bash
+   npm install
+   ```
+2. `.env.example` dan nusxa olib `.env` fayl yarating va `GEMINI_API_KEY` ni kiriting.
+3. Loyihani ishga tushiring:
+   ```bash
+   npm run dev
+   ```
 
-## Run Locally
+## Render.com ga joylash (Deploy)
 
-**Prerequisites:**  Node.js
-
-
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+1. Loyihani GitHub repozitoriyga yuklang.
+2. Render Dashboard'da **New + -> Web Service** ni tanlang.
+3. Sozlamalar:
+   - **Build Command:** `npm install && npm run build`
+   - **Start Command:** `npm start`
+   - **Environment Variables:** `GEMINI_API_KEY` (va ixtiyoriy `NODE_ENV=production`)
